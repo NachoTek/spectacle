@@ -36,28 +36,28 @@ jobs:
       run: |
         $env:Path = "C:\Qt\6.9.0\msvc2022_64\bin;$env:Path"
         $env:Qt6_DIR = "C:\Qt\6.9.0\msvc2022_64"
-        $env:ECM_DIR = "C:\Qt\6.9.0\msvc2022_64"
 
         # Create build directory
         New-Item -ItemType Directory -Force -Path build
 
-        # Configure with minimal dependencies for testing
+        # Copy minimal CMakeLists for Windows platform tests
+        Copy-Item CMakeLists.windows-tests.txt build/CMakeLists.txt
+
+        # Configure with Qt 6
         cd build
-        cmake .. `
+        cmake . `
           -DCMAKE_BUILD_TYPE=Debug `
-          -DCMAKE_INSTALL_PREFIX=install `
           -DBUILD_TESTING=ON `
           -DCMAKE_CXX_STANDARD=20 `
           -DQt6_DIR="C:\Qt\6.9.0\msvc2022_64" `
-          -DCMAKE_PREFIX_PATH="C:\Qt\6.9.0\msvc2022_64" `
-          -DCMAKE_DISABLE_FIND_PACKAGE_KF6Config=TRUE
+          -DCMAKE_PREFIX_PATH="C:\Qt\6.9.0\msvc2022_64"
 
     - name: Build Windows Platform Components
       shell: pwsh
       run: |
         $env:Path = "C:\Qt\6.9.0\msvc2022_64\bin;$env:Path"
         cd build
-        cmake --build . --config Debug --parallel 4 --target helper_process_test named_pipe_server_test selection_geometry_test
+        cmake --build . --config Debug --parallel 4
 
     - name: Run Windows Platform Tests
       shell: pwsh

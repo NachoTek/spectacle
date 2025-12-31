@@ -1,0 +1,61 @@
+cmake_minimum_required(VERSION 3.16)
+project(SpectacleWindowsTests LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Find Qt 6
+find_package(Qt6 REQUIRED COMPONENTS Core Test)
+
+# Include Qt test framework
+enable_testing()
+include(CTest)
+
+# Set up include directories
+include_directories(${CMAKE_SOURCE_DIR}/src)
+
+# Windows Platform Components - Helper Process
+set(HELPER_PROCESS_SOURCES
+    src/Platforms/Windows/HelperProcess.cpp
+    src/Platforms/Windows/IPCProtocol.cpp
+)
+
+# Windows Platform Components - Named Pipe Server
+set(NAMED_PIPE_SERVER_SOURCES
+    src/Platforms/Windows/NamedPipeServer.cpp
+    src/Platforms/Windows/IPCProtocol.cpp
+)
+
+# Windows Platform Components - WGC Capture
+set(WGC_CAPTURE_SOURCES
+    src/Platforms/Windows/WGCCapture.cpp
+)
+
+# Geometry - Selection
+set(GEOMETRY_SOURCES
+    src/Gui/Overlay/SelectionGeometry.cpp
+)
+
+# Create test executables
+add_executable(helper_process_test
+    tests/Integration/HelperProcessTest.cpp
+    ${HELPER_PROCESS_SOURCES}
+)
+target_link_libraries(helper_process_test Qt6::Core Qt6::Test)
+
+add_executable(named_pipe_server_test
+    tests/Integration/NamedPipeServerTest.cpp
+    ${NAMED_PIPE_SERVER_SOURCES}
+)
+target_link_libraries(named_pipe_server_test Qt6::Core Qt6::Test)
+
+add_executable(selection_geometry_test
+    tests/Unit/SelectionGeometryTest.cpp
+    ${GEOMETRY_SOURCES}
+)
+target_link_libraries(selection_geometry_test Qt6::Core Qt6::Test)
+
+# Add tests to CTest
+add_test(NAME HelperProcessTest COMMAND helper_process_test)
+add_test(NAME NamedPipeServerTest COMMAND named_pipe_server_test)
+add_test(NAME SelectionGeometryTest COMMAND selection_geometry_test)
