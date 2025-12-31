@@ -11,46 +11,49 @@ find_package(Qt6 REQUIRED COMPONENTS Core Test)
 enable_testing()
 include(CTest)
 
+# Parent directory (where source files are)
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+
 # Set up include directories
-include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${SOURCE_DIR}/src)
 
 # Windows Platform Components - Helper Process
 set(HELPER_PROCESS_SOURCES
-    src/Platforms/Windows/HelperProcess.cpp
-    src/Platforms/Windows/IPCProtocol.cpp
+    ${SOURCE_DIR}/src/Platforms/Windows/HelperProcess.cpp
+    ${SOURCE_DIR}/src/Platforms/Windows/IPCProtocol.cpp
 )
 
 # Windows Platform Components - Named Pipe Server
 set(NAMED_PIPE_SERVER_SOURCES
-    src/Platforms/Windows/NamedPipeServer.cpp
-    src/Platforms/Windows/IPCProtocol.cpp
+    ${SOURCE_DIR}/src/Platforms/Windows/NamedPipeServer.cpp
+    ${SOURCE_DIR}/src/Platforms/Windows/IPCProtocol.cpp
 )
 
 # Windows Platform Components - WGC Capture
 set(WGC_CAPTURE_SOURCES
-    src/Platforms/Windows/WGCCapture.cpp
+    ${SOURCE_DIR}/src/Platforms/Windows/WGCCapture.cpp
 )
 
 # Geometry - Selection
 set(GEOMETRY_SOURCES
-    src/Gui/Overlay/SelectionGeometry.cpp
+    ${SOURCE_DIR}/src/Gui/Overlay/SelectionGeometry.cpp
 )
 
 # Create test executables
 add_executable(helper_process_test
-    tests/Integration/HelperProcessTest.cpp
+    ${SOURCE_DIR}/tests/Integration/HelperProcessTest.cpp
     ${HELPER_PROCESS_SOURCES}
 )
 target_link_libraries(helper_process_test Qt6::Core Qt6::Test)
 
 add_executable(named_pipe_server_test
-    tests/Integration/NamedPipeServerTest.cpp
+    ${SOURCE_DIR}/tests/Integration/NamedPipeServerTest.cpp
     ${NAMED_PIPE_SERVER_SOURCES}
 )
 target_link_libraries(named_pipe_server_test Qt6::Core Qt6::Test)
 
 add_executable(selection_geometry_test
-    tests/Unit/SelectionGeometryTest.cpp
+    ${SOURCE_DIR}/tests/Unit/SelectionGeometryTest.cpp
     ${GEOMETRY_SOURCES}
 )
 target_link_libraries(selection_geometry_test Qt6::Core Qt6::Test)
