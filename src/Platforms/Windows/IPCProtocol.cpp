@@ -13,8 +13,8 @@
 QJsonDocument IPCProtocol::createMessage(IPCMessageType type, const QJsonObject &data)
 {
     QJsonObject msg;
-    msg[u"type"_s] = messageTypeToString(type);
-    msg[u"timestamp"_s] = QDateTime::currentMSecsSinceEpoch();
+    msg[QLatin1String("type")] = messageTypeToString(type);
+    msg[QLatin1String("timestamp")] = QDateTime::currentMSecsSinceEpoch();
 
     // Merge data into message
     for (auto it = data.constBegin(); it != data.constEnd(); ++it) {
@@ -32,13 +32,13 @@ QPair<IPCMessageType, QJsonObject> IPCProtocol::parseMessage(const QJsonDocument
     }
 
     QJsonObject obj = json.object();
-    QString typeStr = obj.value(u"type"_s).toString();
+    QString typeStr = obj.value(QLatin1String("type")).toString();
     IPCMessageType type = stringToMessageType(typeStr);
 
     // Remove metadata fields
     QJsonObject data;
     for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
-        if (it.key() != u"type"_s && it.key() != u"timestamp"_s) {
+        if (it.key() != QLatin1String("type") && it.key() != QLatin1String("timestamp")) {
             data[it.key()] = it.value();
         }
     }
@@ -49,45 +49,45 @@ QPair<IPCMessageType, QJsonObject> IPCProtocol::parseMessage(const QJsonDocument
 QJsonDocument IPCProtocol::hotkeyPressedMessage(int keyCode)
 {
     QJsonObject data;
-    data[u"keyCode"_s] = keyCode;
+    data[QLatin1String("keyCode")] = keyCode;
     return createMessage(IPCMessageType::HotkeyPressed, data);
 }
 
 QJsonDocument IPCProtocol::registerHotkeyRequest(int keyCode)
 {
     QJsonObject data;
-    data[u"keyCode"_s] = keyCode;
+    data[QLatin1String("keyCode")] = keyCode;
     return createMessage(IPCMessageType::RegisterHotkey, data);
 }
 
 QJsonDocument IPCProtocol::errorMessage(const QString &errorMessage)
 {
     QJsonObject data;
-    data[u"error"_s] = errorMessage;
+    data[QLatin1String("error")] = errorMessage;
     return createMessage(IPCMessageType::Error, data);
 }
 
 QString IPCProtocol::messageTypeToString(IPCMessageType type)
 {
     switch (type) {
-        case IPCMessageType::HotkeyPressed: return u"HotkeyPressed"_s;
-        case IPCMessageType::RegisterHotkey: return u"RegisterHotkey"_s;
-        case IPCMessageType::UnregisterHotkey: return u"UnregisterHotkey"_s;
-        case IPCMessageType::Ping: return u"Ping"_s;
-        case IPCMessageType::Pong: return u"Pong"_s;
-        case IPCMessageType::Error: return u"Error"_s;
-        default: return u"Unknown"_s;
+        case IPCMessageType::HotkeyPressed: return QLatin1String("HotkeyPressed");
+        case IPCMessageType::RegisterHotkey: return QLatin1String("RegisterHotkey");
+        case IPCMessageType::UnregisterHotkey: return QLatin1String("UnregisterHotkey");
+        case IPCMessageType::Ping: return QLatin1String("Ping");
+        case IPCMessageType::Pong: return QLatin1String("Pong");
+        case IPCMessageType::Error: return QLatin1String("Error");
+        default: return QLatin1String("Unknown");
     }
 }
 
 IPCMessageType IPCProtocol::stringToMessageType(const QString &str)
 {
-    if (str == u"HotkeyPressed"_s) return IPCMessageType::HotkeyPressed;
-    if (str == u"RegisterHotkey"_s) return IPCMessageType::RegisterHotkey;
-    if (str == u"UnregisterHotkey"_s) return IPCMessageType::UnregisterHotkey;
-    if (str == u"Ping"_s) return IPCMessageType::Ping;
-    if (str == u"Pong"_s) return IPCMessageType::Pong;
-    if (str == u"Error"_s) return IPCMessageType::Error;
+    if (str == QLatin1String("HotkeyPressed")) return IPCMessageType::HotkeyPressed;
+    if (str == QLatin1String("RegisterHotkey")) return IPCMessageType::RegisterHotkey;
+    if (str == QLatin1String("UnregisterHotkey")) return IPCMessageType::UnregisterHotkey;
+    if (str == QLatin1String("Ping")) return IPCMessageType::Ping;
+    if (str == QLatin1String("Pong")) return IPCMessageType::Pong;
+    if (str == QLatin1String("Error")) return IPCMessageType::Error;
     return IPCMessageType::Error; // Default to error for unknown types
 }
 
