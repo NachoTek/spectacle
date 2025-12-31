@@ -5,6 +5,7 @@
 
 #include <QTest>
 #include <QRect>
+#include <QGuiApplication>
 
 #include "Gui/Overlay/SelectionGeometry.h"
 
@@ -101,7 +102,7 @@ void SelectionGeometryTest::testZeroAreaSelectionRejected()
 void SelectionGeometryTest::testHugeSelectionClampedToScreen()
 {
     // GIVEN: Points beyond screen bounds
-    QRect screenRect = QApplication::primaryScreen()->geometry();
+    QRect screenRect = QGuiApplication::primaryScreen()->geometry();
     QPoint start(-1000, -1000);
     QPoint end(screenRect.width() + 1000, screenRect.height() + 1000);
 

@@ -107,7 +107,7 @@ private:
 
     QString m_pipeName;
     bool m_running = false;
-    QMutex m_mutex;
+    mutable QMutex m_mutex;
 };
 
 /**
