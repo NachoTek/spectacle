@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spectacle UX Design Directions</title>
+<style>
+  :root {
+    --bg: #f3f4f6;
+    --panel: #ffffff;
+    --panel-alt: #f7f7f9;
+    --ink: #111217;
+    --muted: #5a5f6a;
+    --line: #d9dde3;
+    --accent: #0078d4;
+    --accent-2: #1a94ff;
+    --success: #2ea043;
+    --warning: #d29922;
+    --danger: #d14343;
+    --radius: 14px;
+    --shadow: 0 12px 24px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI Variable", "Segoe UI", Tahoma, Arial, sans-serif;
+    background: radial-gradient(1200px 700px at 10% 0%, #f9fafc 0%, #f1f2f6 55%, #eef0f4 100%);
+    color: var(--ink);
+  }
+
+  header {
+    padding: 24px 28px 10px 28px;
+  }
+
+  h1 {
+    margin: 0 0 6px 0;
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 22px;
+    padding: 16px 28px 32px 28px;
+  }
+
+  .direction {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .direction:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+
+  .direction-header {
+    padding: 14px 16px 12px 16px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, #ffffff 0%, #f8f9fb 100%);
+  }
+
+  .direction-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .direction-tag {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .mockup {
+    position: relative;
+    height: 330px;
+    background: var(--panel-alt);
+  }
+
+  .topbar {
+    height: 40px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .pill {
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #eef3ff;
+    color: #1a4d9b;
+    border: 1px solid #d6e4ff;
+    font-size: 11px;
+  }
+
+  .toolbar {
+    position: absolute;
+    top: 56px;
+    left: 16px;
+    display: flex;
+    gap: 8px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .tool {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: #f0f2f6;
+    border: 1px solid #d6dbe4;
+  }
+
+  .tool.accent { background: #e7f2ff; border-color: #b9d9ff; }
+
+  .overlay {
+    position: absolute;
+    inset: 68px 24px 28px 24px;
+    border: 2px dashed #7aa7e8;
+    background: rgba(0,120,212,0.06);
+    border-radius: 10px;
+  }
+
+  .overlay .annotation {
+    position: absolute;
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    width: 120px;
+    height: 70px;
+    top: 26px;
+    left: 38px;
+  }
+
+  .overlay .arrow {
+    position: absolute;
+    width: 120px;
+    height: 2px;
+    background: var(--accent);
+    top: 140px;
+    left: 80px;
+  }
+
+  .overlay .arrow:after {
+    content: "";
+    position: absolute;
+    right: -6px;
+    top: -4px;
+    border: 6px solid transparent;
+    border-left-color: var(--accent);
+  }
+
+  .sidebar {
+    position: absolute;
+    left: 0;
+    top: 40px;
+    bottom: 0;
+    width: 76px;
+    background: #f6f7fb;
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .nav-item {
+    height: 28px;
+    border-radius: 8px;
+    background: #e9edf5;
+    border: 1px solid #d2d9e6;
+  }
+
+  .nav-item.accent { background: #e7f2ff; border-color: #b9d9ff; }
+
+  .bottom-bar {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .btn {
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid #c7d2e4;
+    background: #f2f5fb;
+  }
+
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .btn:hover { filter: brightness(0.98); }
+
+  .direction-notes {
+    padding: 12px 16px 16px 16px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--muted);
+    background: #fcfcfd;
+  }
+
+  .direction-notes ul {
+    margin: 6px 0 0 16px;
+    padding: 0;
+  }
+
+  .split {
+    position: absolute;
+    top: 40px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .split .pane {
+    position: relative;
+    border-right: 1px solid var(--line);
+  }
+
+  .split .pane:last-child { border-right: none; }
+
+  .panel-title {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .ribbon {
+    height: 54px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 0 12px;
+  }
+
+  .ribbon-group {
+    display: flex;
+    gap: 6px;
+    border-right: 1px solid var(--line);
+    padding-right: 10px;
+  }
+
+  .ribbon-group:last-child { border-right: none; }
+
+  .micro { width: 18px; height: 18px; background: #e9eef8; border-radius: 4px; border: 1px solid #d3dbe8; }
+
+  .caption { font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Spectacle UX Design Directions</h1>
+    <div class="subtitle">Windows 11 Fluent foundation. Explore the six directions below and pick a favorite or combine elements.</div>
+    <div class="legend">
+      <span class="dot" style="background: var(--accent);"></span> Accent color (system)
+      <span class="dot" style="background: #e9edf5;"></span> Surface
+      <span class="dot" style="background: #f6f7fb;"></span> Alt surface
+    </div>
+  </header>
+
+  <section class="grid">
+    <!-- Direction 1 -->
+    <article class="direction">
+      <div class="direction-header">
+        <div class="direction-title">Direction A - Overlay First</div>
+        <div class="direction-tag">Minimal chrome, focus on capture</div>
+      </div>
+      <div class="mockup">
+        <div class="topbar">
+          <span class="pill">Capture</span>
+          <span class="caption">Print Screen active</span>
+        </div>
+        <div class="toolbar">
+          <div class="tool accent"></div>
+          <div class="tool"></div>
+          <div class="tool"></div>
+          <div class="tool"></div>
+        </div>
+        <div class="overlay">
+          <div class="annotation"></div>
+          <div class="arrow"></div>
+        </div>
+        <div class="bottom-bar">
+          <span class="caption">Clipboard: live</span>
+          <div>
+            <span class="btn">Cancel</span>
+            <span class="btn primary">Capture</span>
+          </div>
+        </div>
+      </div>
+      <div class="direction-notes">
+        <ul>
+          <li>Overlay dominates the experience.</li>
+          <li>Tool strip floats near selection.</li>
+          <li>Best for speed and focus.</li>
+        </ul>
+      </div>
+    </article>
+
+    <!-- Direction 2 -->
+    <article class="direction">
+      <div class="direction-header">
+        <div class="direction-title">Direction B - Ribbon Command Bar</div>
+        <div class="direction-tag">Command grouping, clear controls</div>
+      </div>
+      <div class="mockup">
+        <div class="ribbon">
+          <div class="ribbon-group">
+            <div class="micro"></div><div class="micro"></div><div class="micro"></div>
+          </div>
+          <div class="ribbon-group">
+            <div class="micro"></div><div class="micro"></div>
+          </div>
+          <span class="caption">Capture | Annotate | Save</span>
+        </div>
+        <div class="overlay" style="top: 80px;"></div>
+        <div class="bottom-bar">
+          <span class="caption">Delay: 0s</span>
+          <div>
+            <span class="btn">Cancel</span>
+            <span class="btn primary">Capture</span>
+          </div>
+        </div>
+      </div>
+      <div class="direction-notes">
+        <ul>
+          <li>Windows-friendly command grouping.</li>
+          <li>Clear mode switching.</li>
+          <li>Great for discoverability.</li>
+        </ul>
+      </div>
+    </article>
+
+    <!-- Direction 3 -->
+    <article class="direction">
+      <div class="direction-header">
+        <div class="direction-title">Direction C - Compact Command Top Bar</div>
+        <div class="direction-tag">Lightweight, efficient controls</div>
+      </div>
+      <div class="mockup">
+        <div class="topbar">
+          <div class="tool"></div>
+          <div class="tool"></div>
+          <div class="tool accent"></div>
+          <span class="caption">Capture ready</span>
+        </div>
+        <div class="overlay"></div>
+        <div class="bottom-bar">
+          <span class="caption">Auto save on</span>
+          <div>
+            <span class="btn">Discard</span>
+            <span class="btn primary">Save</span>
+          </div>
+        </div>
+      </div>
+      <div class="direction-notes">
+        <ul>
+          <li>Most minimal chrome after overlay.</li>
+          <li>Best for power users.</li>
+          <li>Strong parity feel.</li>
+        </ul>
+      </div>
+    </article>
+
+    <!-- Direction 4 -->
+    <article class="direction">
+      <div class="direction-header">
+        <div class="direction-title">Direction D - Sidebar Workflow</div>
+        <div class="direction-tag">Step-based, guided flow</div>
+      </div>
+      <div class="mockup">
+        <div class="topbar">
+          <span class="caption">Spectacle</span>
+        </div>
+        <div class="sidebar">
+          <div class="nav-item accent"></div>
+          <div class="nav-item"></div>
+          <div class="nav-item"></div>
+          <div class="nav-item"></div>
+        </div>
+        <div class="overlay" style="left: 100px; right: 24px;"></div>
+      </div>
+      <div class="direction-notes">
+        <ul>
+          <li>Guided flow with clear progression.</li>
+          <li>Best for first-time users.</li>
+          <li>More UI weight.</li>
+        </ul>
+      </div>
+    </article>
+
+    <!-- Direction 5 -->
+    <article class="direction">
+      <div class="direction-header">
+        <div class="direction-title">Direction E - Minimal Overlay + Quick Tray</div>
+        <div class="direction-tag">Overlay only, quick action strip</div>
+      </div>
+      <div class="mockup">
+        <div class="overlay" style="top: 40px;"></div>
+        <div class="bottom-bar" style="left: 80px; right: 80px;">
+          <span class="caption">Tools</span>
+          <div>
+            <span class="btn">Annotate</span>
+            <span class="btn primary">Capture</span>
+          </div>
+        </div>
+      </div>
+      <div class="direction-notes">
+        <ul>
+          <li>Ultra fast and focused.</li>
+          <li>Minimal visual clutter.</li>
+          <li>Best for speed and clarity.</li>
+        </ul>
+      </div>
+    </article>
+
+    <!-- Direction 6 -->
+    <article class="direction">
+      <div class="direction-header">
+        <div class="direction-title">Direction F - Split Preview</div>
+        <div class="direction-tag">Live preview alongside overlay</div>
+      </div>
+      <div class="mockup">
+        <div class="topbar">
+          <span class="caption">Capture + Preview</span>
+        </div>
+        <div class="split">
+          <div class="pane">
+            <span class="panel-title">Overlay</span>
+            <div class="overlay" style="inset: 50px 18px 18px 18px;"></div>
+          </div>
+          <div class="pane">
+            <span class="panel-title">Preview</span>
+            <div style="position:absolute; inset: 50px 18px 18px 18px; border:1px solid var(--line); border-radius:8px; background:#fff;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="direction-notes">
+        <ul>
+          <li>Immediate visual confirmation.</li>
+          <li>Good for confidence after capture.</li>
+          <li>Uses more screen space.</li>
+        </ul>
+      </div>
+    </article>
+  </section>
+</body>
+</html>
