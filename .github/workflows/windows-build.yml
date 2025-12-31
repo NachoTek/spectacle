@@ -66,7 +66,7 @@ jobs:
         $env:QT_LOGGING_RULES = "spectacle.*=true"
 
         cd build
-        ctest -C Debug --output-on-failure -R "helper_process|named_pipe|selection_geometry" -V
+        ctest -C Debug --output-on-failure -V
 
     - name: Upload Test Results
       if: always()
