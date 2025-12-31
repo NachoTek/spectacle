@@ -1,0 +1,155 @@
+# UI Component Inventory (root)
+
+## QML Components
+
+- src\Gui\AcceptAction.qml
+- src\Gui\AcceptAction.qml
+- src\Gui\AnimatedLoader.qml
+- src\Gui\AnimatedLoader.qml
+- src\Gui\AnnotationEditor.qml
+- src\Gui\AnnotationEditor.qml
+- src\Gui\AnnotationOptionsToolBarContents.qml
+- src\Gui\AnnotationOptionsToolBarContents.qml
+- src\Gui\AnnotationsToolBarContents.qml
+- src\Gui\AnnotationsToolBarContents.qml
+- src\Gui\ButtonGrid.qml
+- src\Gui\ButtonGrid.qml
+- src\Gui\CancelAction.qml
+- src\Gui\CancelAction.qml
+- src\Gui\CaptureModeButtonsColumn.qml
+- src\Gui\CaptureModeButtonsColumn.qml
+- src\Gui\CaptureOptions.qml
+- src\Gui\CaptureOptions.qml
+- src\Gui\CaptureOverlay.qml
+- src\Gui\CaptureOverlay.qml
+- src\Gui\CaptureSettingsColumn.qml
+- src\Gui\CaptureSettingsColumn.qml
+- src\Gui\CopyImageAction.qml
+- src\Gui\CopyImageAction.qml
+- src\Gui\CopyLocationAction.qml
+- src\Gui\CopyLocationAction.qml
+- src\Gui\DashedOutline.qml
+- src\Gui\DashedOutline.qml
+- src\Gui\DelaySpinBox.qml
+- src\Gui\DelaySpinBox.qml
+- src\Gui\DialogPage.qml
+- src\Gui\DialogPage.qml
+- src\Gui\EditAction.qml
+- src\Gui\EditAction.qml
+- src\Gui\EmptyPage.qml
+- src\Gui\EmptyPage.qml
+- src\Gui\ExportMenuButton.qml
+- src\Gui\ExportMenuButton.qml
+- src\Gui\FloatingBackground.qml
+- src\Gui\FloatingBackground.qml
+- src\Gui\FloatingToolBar.qml
+- src\Gui\FloatingToolBar.qml
+- src\Gui\Handle.qml
+- src\Gui\Handle.qml
+- src\Gui\HelpMenuButton.qml
+- src\Gui\HelpMenuButton.qml
+- src\Gui\InlineMessageList.qml
+- src\Gui\InlineMessageList.qml
+- src\Gui\Magnifier.qml
+- src\Gui\Magnifier.qml
+- src\Gui\NewScreenshotToolButton.qml
+- src\Gui\NewScreenshotToolButton.qml
+- src\Gui\OcrAction.qml
+- src\Gui\OcrAction.qml
+- src\Gui\OptionsMenuButton.qml
+- src\Gui\OptionsMenuButton.qml
+- src\Gui\Outline.qml
+- src\Gui\Outline.qml
+- src\Gui\QmlUtils.qml
+- src\Gui\QmlUtils.qml
+- src\Gui\RecordAction.qml
+- src\Gui\RecordAction.qml
+- src\Gui\RecordOptions.qml
+- src\Gui\RecordOptions.qml
+- src\Gui\RecordingModeButtonsColumn.qml
+- src\Gui\RecordingModeButtonsColumn.qml
+- src\Gui\RecordingModeMenuButton.qml
+- src\Gui\RecordingModeMenuButton.qml
+- src\Gui\RecordingSettingsColumn.qml
+- src\Gui\RecordingSettingsColumn.qml
+- src\Gui\RecordingView.qml
+- src\Gui\RecordingView.qml
+- src\Gui\SaveAction.qml
+- src\Gui\SaveAction.qml
+- src\Gui\SaveAsAction.qml
+- src\Gui\SaveAsAction.qml
+- src\Gui\SceenshotModeMenu.qml
+- src\Gui\SceenshotModeMenu.qml
+- src\Gui\ScreenshotModeMenuButton.qml
+- src\Gui\ScreenshotModeMenuButton.qml
+- src\Gui\ScreenshotView.qml
+- src\Gui\ScreenshotView.qml
+- src\Gui\ShortcutsTextBox.qml
+- src\Gui\ShortcutsTextBox.qml
+- src\Gui\SizeLabel.qml
+- src\Gui\SizeLabel.qml
+- src\Gui\TextContextMenuConnection.qml
+- src\Gui\TextContextMenuConnection.qml
+- src\Gui\TtToolButton.qml
+- src\Gui\TtToolButton.qml
+- src\Gui\UndoRedoGroup.qml
+- src\Gui\UndoRedoGroup.qml
+- src\Gui\ViewerPage.qml
+- src\Gui\ViewerPage.qml
+
+## Qt Designer Forms
+
+- src\Gui\SettingsDialog\GeneralOptions.ui
+- src\Gui\SettingsDialog\GeneralOptions.ui
+- src\Gui\SettingsDialog\GeneralOptions.ui
+- src\Gui\SettingsDialog\ImageSaveOptions.ui
+- src\Gui\SettingsDialog\ImageSaveOptions.ui
+- src\Gui\SettingsDialog\ImageSaveOptions.ui
+- src\Gui\SettingsDialog\VideoSaveOptions.ui
+- src\Gui\SettingsDialog\VideoSaveOptions.ui
+- src\Gui\SettingsDialog\VideoSaveOptions.ui
+
+## C++ UI Classes (selected)
+
+- CaptureWindow (`src\Gui\CaptureWindow.h`)
+- CaptureWindowPrivate (`src\Gui\CaptureWindow.h`)
+- ExportMenu (`src\Gui\ExportMenu.h`)
+- ExportMenuSingleton (`src\Gui\ExportMenu.cpp`)
+- ExportMenuSingleton (`src\Gui\ExportMenu.h`)
+- GeneralOptionsPage (`src\Gui\SettingsDialog\GeneralOptionsPage.h`)
+- GeneralOptionsPage (`src\Gui\SettingsDialog\SettingsDialog.h`)
+- HelpMenu (`src\Gui\HelpMenu.h`)
+- HelpMenuSingleton (`src\Gui\HelpMenu.cpp`)
+- HelpMenuSingleton (`src\Gui\HelpMenu.h`)
+- ImageSaveOptionsPage (`src\Gui\SettingsDialog\ImageSaveOptionsPage.h`)
+- ImageSaveOptionsPage (`src\Gui\SettingsDialog\SettingsDialog.h`)
+- InlineMessageModel (`src\Gui\InlineMessageModel.h`)
+- KShortcutsEditor (`src\Gui\SettingsDialog\ShortcutsOptionsPage.h`)
+- OcrLanguageSelector (`src\Gui\SettingsDialog\GeneralOptionsPage.h`)
+- OcrLanguageSelector (`src\Gui\SettingsDialog\OcrLanguageSelector.h`)
+- OptionsMenu (`src\Gui\OptionsMenu.h`)
+- RecordingModeMenu (`src\Gui\RecordingModeMenu.h`)
+- ScreenshotModeMenu (`src\Gui\ScreenshotModeMenu.h`)
+- SelectionEditor (`src\Gui\Selection.h`)
+- SelectionEditor (`src\Gui\SelectionEditor.h`)
+- SelectionEditorPrivate (`src\Gui\SelectionEditor.cpp`)
+- SelectionEditorPrivate (`src\Gui\SelectionEditor.h`)
+- SelectionEditorSingleton (`src\Gui\SelectionEditor.cpp`)
+- SelectionEditorSingleton (`src\Gui\SelectionEditor.h`)
+- SettingsDialog (`src\Gui\SettingsDialog\SettingsDialog.h`)
+- ShortcutsOptionsPage (`src\Gui\SettingsDialog\SettingsDialog.h`)
+- ShortcutsOptionsPage (`src\Gui\SettingsDialog\ShortcutsOptionsPage.h`)
+- SpectacleMenu (`src\Gui\SpectacleMenu.h`)
+- SpectacleWindow (`src\Gui\SpectacleWindow.h`)
+- SpectacleWindowPrivate (`src\Gui\SpectacleWindow.h`)
+- TextContextMenu (`src\Gui\TextContextMenu.h`)
+- TextContextMenuSingleton (`src\Gui\TextContextMenu.cpp`)
+- TextContextMenuSingleton (`src\Gui\TextContextMenu.h`)
+- Ui_GeneralOptions (`src\Gui\SettingsDialog\GeneralOptionsPage.h`)
+- Ui_ImageSaveOptions (`src\Gui\SettingsDialog\ImageSaveOptionsPage.h`)
+- Ui_VideoSaveOptions (`src\Gui\SettingsDialog\VideoSaveOptionsPage.h`)
+- VideoFormatModel (`src\Gui\SettingsDialog\VideoSaveOptionsPage.h`)
+- VideoSaveOptionsPage (`src\Gui\SettingsDialog\SettingsDialog.h`)
+- VideoSaveOptionsPage (`src\Gui\SettingsDialog\VideoSaveOptionsPage.h`)
+- ViewerWindow (`src\Gui\ViewerWindow.h`)
+- ViewerWindowPrivate (`src\Gui\ViewerWindow.h`)
