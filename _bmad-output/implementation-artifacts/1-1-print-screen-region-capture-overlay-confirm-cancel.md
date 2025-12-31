@@ -31,12 +31,12 @@ So that I can quickly capture part of the screen and confirm or cancel.
 - [x] Create `HelperProcess` class (src/Platforms/Windows/HelperProcess.h)
 - [x] Implement Win32 hotkey registration (RegisterHotKey API)
 - [x] Add Registry Run key for auto-start
-- [ ] Implement named pipe IPC server (JSON envelope)
+- [x] Implement named pipe IPC server (JSON envelope)
 - [x] Add hotkey conflict detection
 - [x] Create helper process CMake target
 - [x] Add IPC message protocol (JSON schema)
 - [x] Implement hotkey simulation for tests
-- [ ] **Test:** `testPrintScreenTriggersOverlayWithinOneSecond()` passes
+- [x] **Test:** `testPrintScreenTriggersOverlayWithinOneSecond()` passes
 
 ### Phase 2: Windows Graphics Capture Backend (3 hours)
 
@@ -185,6 +185,25 @@ So that I can quickly capture part of the screen and confirm or cancel.
 - Registry integration complete
 - Hotkey conflict detection working
 
+✅ **Phase 1 Final Tasks Complete (2/2 tasks):**
+- Implemented `NamedPipeServer` class with full Win32 named pipe integration:
+  - **Win32 Named Pipe API** - Creates pipe server (\\\\.\\pipe\\SpectacleHelper)
+  - **Worker Thread** - Non-blocking pipe operations in separate thread
+  - **JSON Envelope Protocol** - Uses IPCProtocol for message serialization
+  - **Client Connection** - Handles ConnectNamedPipe with proper error handling
+  - **Message Streaming** - ReadFile/WriteFile for full-duplex communication
+  - **Signal Emission** - Qt signals for messageReceived, clientConnected, clientDisconnected
+  - **Error Handling** - Graceful handling of broken pipes and JSON parse errors
+- Created integration test: `tests/Integration/NamedPipeServerTest.cpp`
+  - 7 tests covering server lifecycle, client connections, message passing
+  - Tests for invalid JSON handling
+  - Tests for multiple sequential messages
+- Created end-to-end test: `testPrintScreenTriggersOverlayWithinOneSecond()`
+  - Validates NFR1: < 1 second overlay latency
+  - Simulates full workflow: Print Screen → helper process → signal emission
+  - Measures and validates latency timing
+- Updated `tests/CMakeLists.txt` to add named_pipe_server_test target
+
 ✅ **Phase 3 Complete (10/10 tasks):**
 - Created `SelectionOverlay` C++ class with QML integration:
   - **QML Component:** Full-screen transparent overlay with crosshair cursor
@@ -276,14 +295,15 @@ Successfully implemented Print Screen Region Capture feature for Windows 11 port
 - Mock objects for isolated testing
 
 ✅ **Test Coverage:**
-- 20 automated tests across 3 test suites
-- HelperProcess: 7 integration tests
+- 28 automated tests across 4 test suites
+- HelperProcess: 8 integration tests (including end-to-end latency test)
+- NamedPipeServer: 7 integration tests
 - WGC Benchmark: 4 performance tests
 - SelectionGeometry: 9 unit tests
 
-**Files Created:** 14 source files (10 implementation + 4 test files)
-**Tests:** 20 tests total
-**Code Lines:** ~2,500 lines of C++ + QML
+**Files Created:** 16 source files (11 implementation + 5 test files)
+**Tests:** 28 tests total
+**Code Lines:** ~3,200 lines of C++ + QML
 
 **Acceptance Criteria:** ✅ All 4 ACs satisfied
 **Risks Mitigated:**
@@ -305,6 +325,8 @@ Successfully implemented Print Screen Region Capture feature for Windows 11 port
 - `src/Platforms/Windows/WGCCapture.cpp` - WGC capture implementation with Qt placeholder
 - `src/Platforms/Windows/WGCCaptureMock.h` - Mock WGC backend for testing
 - `src/Platforms/Windows/WGCCaptureMock.cpp` - Mock implementation with controllable latency
+- `src/Platforms/Windows/NamedPipeServer.h` - Named pipe server header (Win32 IPC)
+- `src/Platforms/Windows/NamedPipeServer.cpp` - Named pipe server implementation
 
 ### Created Files (Phase 3-6)
 - `src/Gui/Overlay/SelectionOverlay.h` - Overlay window class header
@@ -314,8 +336,9 @@ Successfully implemented Print Screen Region Capture feature for Windows 11 port
 - `src/Gui/Overlay/SelectionGeometry.cpp` - Geometry calculations implementation
 
 ### Test Files Created
-- `tests/Integration/HelperProcessTest.cpp` - Helper process integration tests (7 tests)
+- `tests/Integration/HelperProcessTest.cpp` - Helper process integration tests (8 tests including end-to-end latency test)
 - `tests/Integration/WGCCaptureBenchmark.cpp` - Performance benchmarks (4 tests, P95 < 1s)
+- `tests/Integration/NamedPipeServerTest.cpp` - Named pipe server tests (7 tests)
 - `tests/Unit/SelectionGeometryTest.cpp` - Geometry unit tests (9 tests)
 
 ### Modified Files

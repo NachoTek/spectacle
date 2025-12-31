@@ -1,0 +1,85 @@
+name: Windows Build and Test
+
+on:
+  push:
+    branches: [ master, main, planning-windows11-conversion ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install Qt 6
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.0'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2022_64'
+        modules: 'qtquickcontrols2 qtmultimedia qtsvg qttools'
+        cache: true
+
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Configure CMake
+      shell: pwsh
+      run: |
+        $env:Path = "C:\Qt\6.9.0\msvc2022_64\bin;$env:Path"
+        $env:Qt6_DIR = "C:\Qt\6.9.0\msvc2022_64"
+        $env:ECM_DIR = "C:\Qt\6.9.0\msvc2022_64"
+
+        # Create build directory
+        New-Item -ItemType Directory -Force -Path build
+
+        # Configure with minimal dependencies for testing
+        cd build
+        cmake .. `
+          -DCMAKE_BUILD_TYPE=Debug `
+          -DCMAKE_INSTALL_PREFIX=install `
+          -DBUILD_TESTING=ON `
+          -DCMAKE_CXX_STANDARD=20 `
+          -DQt6_DIR="C:\Qt\6.9.0\msvc2022_64" `
+          -DCMAKE_PREFIX_PATH="C:\Qt\6.9.0\msvc2022_64" `
+          -DCMAKE_DISABLE_FIND_PACKAGE_KF6Config=TRUE
+
+    - name: Build Windows Platform Components
+      shell: pwsh
+      run: |
+        $env:Path = "C:\Qt\6.9.0\msvc2022_64\bin;$env:Path"
+        cd build
+        cmake --build . --config Debug --parallel 4 --target helper_process_test named_pipe_server_test selection_geometry_test
+
+    - name: Run Windows Platform Tests
+      shell: pwsh
+      run: |
+        $env:Path = "C:\Qt\6.9.0\msvc2022_64\bin;$env:Path"
+        $env:QT_LOGGING_RULES = "spectacle.*=true"
+
+        cd build
+        ctest -C Debug --output-on-failure -R "helper_process|named_pipe|selection_geometry" -V
+
+    - name: Upload Test Results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-windows
+        path: build/Testing/
+
+    - name: Upload Build Logs
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-logs
+        path: build/CMakeFiles/CMakeOutput.log
+
