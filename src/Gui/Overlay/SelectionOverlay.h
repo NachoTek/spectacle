@@ -3,6 +3,8 @@
  *
  *  Selection Overlay Window
  *  Story 1.1 - Full-Screen Capture Overlay
+ *  Story 1.2 - Selection Targeting + Refinement
+ *  Story 1.8 - Window Movement Detection & Overlay Persistence
  */
 
 #pragma once
@@ -11,6 +13,13 @@
 #include <QQuickView>
 #include <QRect>
 #include <QImage>
+
+#ifdef Q_OS_WIN
+// Forward declarations for Windows-specific targeting
+class WindowDetector;
+class SelectionSnapper;
+class WindowEventMonitor;
+#endif
 
 /**
  * @brief Full-screen overlay for screen capture selection
@@ -114,6 +123,28 @@ public Q_SLOTS:
      */
     void escapePressed();
 
+#ifdef Q_OS_WIN
+    /**
+     * @brief Update window target under cursor (called during hover)
+     */
+    void updateTargetUnderCursor(const QPoint &pos);
+
+    /**
+     * @brief Snap selection to window bounds
+     */
+    void snapToWindowBounds(const QRect &windowBounds);
+
+    /**
+     * @brief Update target highlight in QML (helper method)
+     */
+    void updateTargetHighlight(const QRect &bounds);
+
+    /**
+     * @brief Refresh targets (Story 1.8 - re-detect windows)
+     */
+    void refreshTargets();
+#endif
+
 private:
     QQuickView *m_view;
     QRect m_selectionRect;
@@ -121,5 +152,12 @@ private:
     bool m_dragging;
     bool m_autosaveEnabled;
     QString m_autosavePath;
+
+#ifdef Q_OS_WIN
+    WindowDetector *m_windowDetector;
+    SelectionSnapper *m_selectionSnapper;
+    WindowEventMonitor *m_eventMonitor;  // Story 1.8 - Window movement monitoring
+    bool m_targetingEnabled;  // Is click-to-select targeting active
+#endif
 };
 

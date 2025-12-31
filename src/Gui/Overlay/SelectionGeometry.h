@@ -90,6 +90,25 @@ public:
      */
     int handleAtPosition(const QRect &rect, const QPoint &pos, int hitRadius = 10) const;
 
+    /**
+     * @brief Resize rectangle from handle with aspect ratio constraint
+     * @param rect Original rectangle
+     * @param handle Handle being dragged
+     * @param newPos New position of handle
+     * @param maintainAspectRatio If true, preserve original aspect ratio
+     * @return Resized rectangle
+     */
+    QRect resizeFromHandle(const QRect &rect, int handle, const QPoint &newPos, bool maintainAspectRatio) const;
+
+    /**
+     * @brief Update rectangle position by delta (Story 1.8 - Window Movement Tracking)
+     * @param rect Original rectangle
+     * @param deltaX X position change
+     * @param deltaY Y position change
+     * @return Updated rectangle (clamped to screen bounds)
+     */
+    QRect updatePosition(const QRect &rect, int deltaX, int deltaY) const;
+
     // Handle identifiers
     enum Handles {
         TopLeft = 0,

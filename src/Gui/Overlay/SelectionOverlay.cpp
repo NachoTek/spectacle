@@ -3,25 +3,90 @@
  *
  *  Selection Overlay Window
  *  Story 1.1 - Full-Screen Capture Overlay
+ *  Story 1.2 - Selection Targeting + Refinement
+ *  Story 1.8 - Window Movement Detection & Overlay Persistence
  */
 
 #include "SelectionOverlay.h"
 #include "SelectionGeometry.h"
 #include "Platforms/Windows/WGCCapture.h"
+
+#ifdef Q_OS_WIN
+#include "Platforms/Windows/WindowDetector.h"
+#include "Gui/Overlay/SelectionSnapper.h"
+#include "Platforms/Windows/WindowEventMonitor.h"
+#endif
+
 #include <QScreen>
 #include <QGuiApplication>
 #include <QQuickItem>
 #include <QQmlContext>
 #include <QClipboard>
 #include <QApplication>
+#include <QStandardPaths>
+#include <QMetaObject>
 
 SelectionOverlay::SelectionOverlay(QObject *parent)
     : QObject(parent)
     , m_view(nullptr)
     , m_dragging(false)
     , m_autosaveEnabled(false)
-    , m_autosavePath(u"C:\\temp\\screenshot.png"_s)
+    , m_autosavePath(QStandardPaths::writableLocation(QStandardPaths::TempLocation) + QLatin1String("/screenshot.png"))
+#ifdef Q_OS_WIN
+    , m_windowDetector(nullptr)
+    , m_selectionSnapper(nullptr)
+    , m_eventMonitor(nullptr)
+    , m_targetingEnabled(true)  // Enable click-to-select targeting by default
+#endif
 {
+#ifdef Q_OS_WIN
+    // Initialize Windows-specific targeting components
+    m_windowDetector = new WindowDetector(this);
+    m_selectionSnapper = new SelectionSnapper(this);
+    m_eventMonitor = new WindowEventMonitor(this);
+
+    // Connect snap completion signal
+    connect(m_selectionSnapper, &SelectionSnapper::snapCompleted,
+            this, [this](const QRect &finalBounds) {
+        m_selectionRect = finalBounds;
+        Q_EMIT selectionChanged();
+    });
+
+    // Connect bounds changed signal for animation
+    connect(m_selectionSnapper, &SelectionSnapper::boundsChanged,
+            this, [this](const QRect &newBounds) {
+        m_selectionRect = newBounds;
+        Q_EMIT selectionChanged();
+    });
+
+    // Story 1.8: Connect window event monitoring signals
+    connect(m_eventMonitor, &WindowEventMonitor::windowMoved,
+            this, [this](int newX, int newY, int newWidth, int newHeight) {
+        // Update selection bounds when tracked window moves
+        if (!hasSelection()) {
+            return;
+        }
+
+        // Calculate new selection bounds
+        m_selectionRect = QRect(newX, newY, newWidth, newHeight);
+        Q_EMIT selectionChanged();
+        qDebug("Selection updated to window movement: %dx%d at (%d, %d)",
+               newWidth, newHeight, newX, newY);
+    });
+
+    connect(m_eventMonitor, &WindowEventMonitor::windowDestroyed,
+            this, [this]() {
+        // Clear selection when tracked window closes
+        qDebug("Tracked window destroyed, clearing selection");
+        m_selectionRect = QRect();
+        Q_EMIT selectionChanged();
+    });
+
+    connect(m_eventMonitor, &WindowEventMonitor::errorOccurred,
+            this, [](const QString &error) {
+        qWarning("WindowEventMonitor error: %s", qUtf8Printable(error));
+    });
+#endif
 }
 
 SelectionOverlay::~SelectionOverlay()
@@ -42,7 +107,7 @@ void SelectionOverlay::show()
     m_view = new QQuickView();
 
     // Configure view properties
-    m_view->setSource(QUrl(u"qrc:/overlay/SelectionOverlay.qml"_s));
+    m_view->setSource(QUrl(QLatin1String("qrc:/overlay/SelectionOverlay.qml")));
     m_view->setResizeMode(QQuickView::SizeRootObjectToView);
     m_view->setClearColor(Qt::transparent);
 
@@ -56,12 +121,23 @@ void SelectionOverlay::show()
 
     // Expose this object to QML context
     QQmlContext *context = m_view->rootContext();
-    context->setContextProperty(u"_overlay"_s, this);
+    context->setContextProperty(QLatin1String("_overlay"), this);
 
     // Show the window
     m_view->showFullScreen();
     m_view->raise();
     m_view->activateWindow();
+
+#ifdef Q_OS_WIN
+    // Story 1.8: Start window event monitoring
+    if (m_eventMonitor && !m_eventMonitor->isRunning()) {
+        if (m_eventMonitor->start()) {
+            qDebug("Window event monitoring started");
+        } else {
+            qWarning("Failed to start window event monitoring");
+        }
+    }
+#endif
 
     qDebug("Selection overlay shown (fullscreen transparent window)");
 }
@@ -82,6 +158,14 @@ void SelectionOverlay::close()
     }
     m_selectionRect = QRect();
     m_dragging = false;
+
+#ifdef Q_OS_WIN
+    // Story 1.8: Stop window event monitoring
+    if (m_eventMonitor && m_eventMonitor->isRunning()) {
+        m_eventMonitor->stop();
+        qDebug("Window event monitoring stopped");
+    }
+#endif
 }
 
 bool SelectionOverlay::isVisible() const
@@ -207,5 +291,133 @@ void SelectionOverlay::escapePressed()
     Q_EMIT captureAborted();
     close();
 }
+
+#ifdef Q_OS_WIN
+void SelectionOverlay::updateTargetUnderCursor(const QPoint &pos)
+{
+    if (!m_windowDetector || !m_targetingEnabled || !m_view) {
+        return;
+    }
+
+    // Find window under cursor
+    HWND hwnd = m_windowDetector->windowAtPoint(pos);
+    if (!hwnd) {
+        // No window under cursor, clear highlight
+        updateTargetHighlight(QRect());
+        return;
+    }
+
+    // Get window bounds
+    QRect windowBounds = m_windowDetector->getWindowBounds(hwnd);
+    if (windowBounds.isEmpty()) {
+        return;  // Invalid bounds
+    }
+
+    // Update QML TargetHighlighter to show the window bounds
+    updateTargetHighlight(windowBounds);
+}
+
+void SelectionOverlay::updateTargetHighlight(const QRect &bounds)
+{
+    if (!m_view) {
+        return;
+    }
+
+    // Access QML root object
+    QQuickItem *rootItem = m_view->rootObject();
+    if (!rootItem) {
+        return;
+    }
+
+    // Find TargetHighlighter by object name
+    QQuickItem *highlighter = rootItem->findChild<QQuickItem*>(QLatin1String("targetHighlighter"));
+    if (!highlighter) {
+        return;
+    }
+
+    if (bounds.isEmpty()) {
+        // Clear highlight
+        QMetaObject::invokeMethod(highlighter, "clear");
+    } else {
+        // Show highlight with window bounds
+        QMetaObject::invokeMethod(highlighter, "highlight",
+                                  Q_ARG(QVariant, QVariant::fromValue(bounds)),
+                                  Q_ARG(QVariant, QVariant::fromValue(QLatin1String("Window"))));
+    }
+}
+
+void SelectionOverlay::snapToWindowBounds(const QRect &windowBounds)
+{
+    if (!m_selectionSnapper || !m_targetingEnabled) {
+        return;
+    }
+
+    // Use the current selection or create a default one
+    QRect currentBounds = m_selectionRect;
+    if (currentBounds.isEmpty()) {
+        // Start from center of target window
+        QPoint center = windowBounds.center();
+        currentBounds = QRect(center, center);
+    }
+
+    // Animate snap to window bounds
+    m_selectionSnapper->snapTo(currentBounds, windowBounds);
+
+#ifdef Q_OS_WIN
+    // Story 1.8: Start monitoring the selected window for movement
+    if (m_eventMonitor && m_eventMonitor->isRunning()) {
+        // Get the HWND from the window bounds (if we have WindowDetector)
+        if (m_windowDetector) {
+            HWND hwnd = m_windowDetector->windowAtPoint(windowBounds.center());
+            if (hwnd) {
+                m_eventMonitor->setTrackedWindow(hwnd);
+                qDebug("Now tracking window movement for HWND %p", hwnd);
+            }
+        }
+    }
+#endif
+}
+
+void SelectionOverlay::refreshTargets()
+{
+#ifdef Q_OS_WIN
+    if (!m_windowDetector) {
+        return;
+    }
+
+    qDebug("Refreshing target windows");
+
+    // If we have a selection, try to re-detect the target
+    if (hasSelection()) {
+        QPoint center = m_selectionRect.center();
+
+        // Find window at selection center
+        HWND hwnd = m_windowDetector->windowAtPoint(center);
+        if (hwnd) {
+            // Get current window bounds
+            QRect newBounds = m_windowDetector->getWindowBounds(hwnd);
+            if (!newBounds.isEmpty()) {
+                // Update selection to current window position
+                m_selectionRect = newBounds;
+                Q_EMIT selectionChanged();
+                qDebug("Selection refreshed to new window bounds: %dx%d at (%d, %d)",
+                       newBounds.width(), newBounds.height(), newBounds.x(), newBounds.y());
+
+                // Update tracked window in monitor
+                if (m_eventMonitor && m_eventMonitor->isRunning()) {
+                    m_eventMonitor->setTrackedWindow(hwnd);
+                }
+                return;
+            }
+        }
+
+        // Window no longer exists - clear selection
+        qDebug("Target window no longer found, clearing selection");
+        m_selectionRect = QRect();
+        Q_EMIT selectionChanged();
+    }
+#endif
+}
+
 
 #include "moc_SelectionOverlay.cpp"

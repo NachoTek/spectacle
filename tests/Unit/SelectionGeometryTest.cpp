@@ -211,5 +211,46 @@ void SelectionGeometryTest::testResizeFromEdgeHandle()
     QCOMPARE(resized.right(), original.right());
 }
 
+void SelectionGeometryTest::testShiftResizingMaintainsAspectRatio()
+{
+    // GIVEN: Selection rectangle with 2:1 aspect ratio
+    QRect original(100, 100, 300, 200); // 200x100 = 2:1 ratio
+    double originalAspect = static_cast<double>(original.width()) / original.height();
+
+    // WHEN: Resizing from bottom-right corner with aspect ratio constraint
+    QPoint newPos(400, 250); // Move to 300x150 area
+    QRect resized = m_geom->resizeFromHandle(original,
+                                              SelectionGeometry::BottomRight,
+                                              newPos,
+                                              true); // maintain aspect ratio
+
+    // THEN: Aspect ratio should be preserved
+    double newAspect = static_cast<double>(resized.width()) / resized.height();
+    QVERIFY2(qAbs(newAspect - originalAspect) < 0.01,
+              "Aspect ratio should be maintained (within 1% tolerance)");
+
+    // AND: Result should be clamped to screen
+    QVERIFY2(m_geom->isValidSelection(resized), "Resized rectangle should be valid");
+}
+
+void SelectionGeometryTest::testResizeConstrainedToScreen()
+{
+    // GIVEN: Selection rectangle
+    QRect original(100, 100, 200, 200);
+
+    // WHEN: Resizing beyond screen bounds
+    QPoint newPos(5000, 5000); // Way beyond screen
+    QRect resized = m_geom->resizeFromHandle(original,
+                                              SelectionGeometry::BottomRight,
+                                              newPos);
+
+    // THEN: Should be clamped to screen bounds
+    QVERIFY2(m_geom->isValidSelection(resized), "Should be clamped to screen");
+
+    QRect screenGeom = QGuiApplication::primaryScreen()->geometry();
+    QVERIFY2(resized.right() <= screenGeom.right(), "Should not exceed screen right");
+    QVERIFY2(resized.bottom() <= screenGeom.bottom(), "Should not exceed screen bottom");
+}
+
 QTEST_MAIN(SelectionGeometryTest)
 #include "SelectionGeometryTest.moc"

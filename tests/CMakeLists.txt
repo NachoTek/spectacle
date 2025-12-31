@@ -79,3 +79,45 @@ ecm_add_test(
     TEST_NAME "named_pipe_server_test"
     LINK_LIBRARIES  Qt::Test
 )
+
+# Window Detector Tests (Story 1.2 - Selection Targeting)
+SET(WINDOW_DETECTOR_TEST_SRCS
+    Integration/WindowDetectorTest.cpp
+    ../src/Platforms/Windows/WindowDetector.cpp
+)
+
+ecm_add_test(
+    ${WINDOW_DETECTOR_TEST_SRCS}
+    TEST_NAME "window_detector_test"
+    LINK_LIBRARIES  Qt::Test
+        Qt::Gui
+)
+
+# Selection Snapper Tests (Story 1.2 - Click-to-Select)
+SET(SELECTION_SNAPPER_TEST_SRCS
+    Unit/SelectionSnapperTest.cpp
+    ../src/Gui/Overlay/SelectionSnapper.cpp
+)
+
+ecm_add_test(
+    ${SELECTION_SNAPPER_TEST_SRCS}
+    TEST_NAME "selection_snapper_test"
+    LINK_LIBRARIES  Qt::Test
+        Qt::Gui
+)
+
+# Target Highlighter Tests (Story 1.2 - Visual Component)
+SET(TARGET_HIGHLIGHTER_TEST_SRCS
+    Integration/TargetHighlighterTest.cpp
+)
+
+ecm_add_test(
+    ${TARGET_HIGHLIGHTER_TEST_SRCS}
+    TEST_NAME "target_highlighter_test"
+    LINK_LIBRARIES  Qt::Test
+        Qt::Gui
+        Qt::Qml
+        Qt::QuickWidgets
+)
+
+

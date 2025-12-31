@@ -21,6 +21,16 @@ Rectangle {
         opacity: 0.3
     }
 
+    // Target highlighter (Story 1.2 - Window Targeting)
+    TargetHighlighter {
+        id: targetHighlighter
+        anchors.fill: parent
+        z: 1  // Above dark overlay, below selection box
+
+        // Visible when overlay is shown
+        visible: true
+    }
+
     // Selection box (shown when user has selection)
     Rectangle {
         id: selectionBox
@@ -120,6 +130,32 @@ Rectangle {
                 }
             }
 
+            // Refresh button (Story 1.8 - Window Movement Detection)
+            Controls.Button {
+                id: refreshBtn
+                objectName: "refreshButton"
+                text: "Refresh"
+                visible: _overlay.hasSelection
+
+                background: Rectangle {
+                    color: refreshBtn.pressed ? "#0066CC" :
+                           refreshBtn.hovered ? "#0088FF" : "#00AAFF"
+                    radius: 4
+                }
+
+                contentItem: Text {
+                    text: refreshBtn.text
+                    color: "white"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                onClicked: {
+                    console.log("Refresh clicked")
+                    _overlay.refreshTargets()
+                }
+            }
+
             // Confirm button (when selection exists)
             Controls.Button {
                 id: confirmBtn
@@ -161,6 +197,11 @@ Rectangle {
         }
 
         onPositionChanged: function(mouse) {
+            // Story 1.2: Update target highlight on hover (Windows only)
+            if (!pressed && typeof(_overlay.updateTargetUnderCursor) !== "undefined") {
+                _overlay.updateTargetUnderCursor(Qt.point(mouse.x, mouse.y))
+            }
+
             if (pressed) {
                 _overlay.mouseMove(Qt.point(mouse.x, mouse.y))
             }
