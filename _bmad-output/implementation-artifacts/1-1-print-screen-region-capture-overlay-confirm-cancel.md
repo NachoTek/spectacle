@@ -314,6 +314,74 @@ Successfully implemented Print Screen Region Capture feature for Windows 11 port
 
 ---
 
+## ⚠️ Windows Testing Status - BLOCKED for Manual Verification
+
+### Current CI Status (2025-12-31)
+✅ **GitHub Actions Windows Build: PASSING**
+- Code compiles successfully on Windows (MSVC 2022 + Qt 6.9.0)
+- All 28 tests compile and link
+- CMake configuration works
+- **Test Execution:** Tests run but fail at runtime (expected - no GUI session in CI)
+
+### What's Working
+- ✅ HelperProcess class - Win32 hotkey registration compiles
+- ✅ NamedPipeServer - IPC communication compiles
+- ✅ WGCCapture - Windows Graphics Capture backend compiles
+- ✅ SelectionGeometry - Rectangle calculations compile
+- ✅ All 28 test suites compile and execute
+
+### What's Missing for Manual Testing
+❌ **No Main Application Entry Point**
+- Current `main.cpp` has KDE/Plasma dependencies
+- Need `platform/win/main.cpp` that works without KDE Frameworks
+- No `Spectacle.exe` binary to run
+
+❌ **No Integration Wiring**
+- Components exist but aren't connected:
+  - HelperProcess → NamedPipeServer → WGCCapture → SelectionOverlay
+- Need main application to orchestrate the workflow
+
+❌ **GUI Runtime Requirements**
+- Tests require active GUI session (QGuiApplication)
+- Win32 named pipes need actual Windows environment
+- WGC needs real graphics hardware/driver
+
+### Action Required Before Story Can Be "Complete"
+**BLOCKER: Manual Windows testing not possible until:**
+
+1. **Create Windows-specific main.cpp** (~1 day)
+   - Remove KDE dependencies (KApplication, KAboutData)
+   - Use pure Qt (QGuiApplication/QApplication)
+   - Wire up HelperProcess → NamedPipeServer → WGCCapture → Overlay
+
+2. **Build on Windows hardware** (~2 hours)
+   - Clone repo on Windows machine
+   - Install Qt 6.9.0 + MSVC 2022
+   - Build Spectacle.exe
+   - Run manual acceptance tests
+
+3. **Verify Acceptance Criteria** (~2 hours)
+   - Press Print Screen → overlay appears in <1s
+   - Drag to select region
+   - Enter confirms → clipboard has image
+   - Escape aborts → clipboard unchanged
+
+### Estimated Timeline
+- **Dev work:** 1-2 days focused effort
+- **Manual testing:** 2-4 hours on Windows hardware
+- **Total:** 1 week to have fully working Windows Spectacle.exe
+
+### Recommendation
+**MARK STORY AS "COMPLETE" ONLY AFTER:**
+- [ ] Windows build tested on actual hardware
+- [ ] All 4 acceptance criteria verified manually
+- [ ] Print Screen workflow tested end-to-end
+- [ ] Screenshot saved to clipboard/file
+
+**Until then:** Keep GitHub Actions CI for build verification, but story cannot be truly "done" without Windows manual testing.
+
+---
+
 ## File List
 
 ### Created Files (Phase 1-2)
