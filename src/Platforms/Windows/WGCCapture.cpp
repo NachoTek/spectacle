@@ -132,7 +132,7 @@ QImage WGCCapture::captureFrameWithLatency(qint64 *latencyMs)
     // Verify performance requirement (<1s)
     if (m_lastLatency >= 1000) {
         qWarning("Capture latency exceeds 1 second: %lld ms", m_lastLatency);
-        Q_EMIT error(u"Capture latency exceeds 1 second"_s);
+        Q_EMIT error(QLatin1String("Capture latency exceeds 1 second"));
     } else {
         qDebug("Capture completed in %lld ms", m_lastLatency);
     }

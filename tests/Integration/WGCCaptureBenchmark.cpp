@@ -61,7 +61,7 @@ void WGCCaptureBenchmark::testSingleCaptureLatency()
     // THEN: Capture succeeds and latency < 1 second
     QVERIFY2(!image.isNull(), "Capture should return valid image");
     QVERIFY2(latencyMs < 1000,
-             qPrintable(u"Single capture latency must be < 1s, got: %1 ms"_s.arg(latencyMs)));
+             qPrintable(QString::fromUtf8("Single capture latency must be < 1s, got: %1 ms").arg(latencyMs)));
 }
 
 void WGCCaptureBenchmark::testRepeatedCaptureLatency()
@@ -81,7 +81,7 @@ void WGCCaptureBenchmark::testRepeatedCaptureLatency()
     // THEN: All captures complete in < 1 second each
     for (int i = 0; i < latencies.size(); ++i) {
         QVERIFY2(latencies[i] < 1000,
-                 qPrintable(u"Capture %1 latency: %2 ms (must be < 1000ms)"_s.arg(i).arg(latencies[i])));
+                 qPrintable(QString::fromUtf8("Capture %1 latency: %2 ms (must be < 1000ms)").arg(i).arg(latencies[i])));
     }
 
     // Calculate average latency
@@ -119,7 +119,7 @@ void WGCCaptureBenchmark::testP95LatencyUnderOneSecond()
     qDebug("P95 latency over %d samples: %lld ms", sampleSize, p95Latency);
 
     QVERIFY2(p95Latency < 1000,
-             qPrintable(u"P95 latency must be < 1s, got: %1 ms"_s.arg(p95Latency)));
+             qPrintable(QString::fromUtf8("P95 latency must be < 1s, got: %1 ms").arg(p95Latency)));
 }
 
 void WGCCaptureBenchmark::testLatencyUnderLoad()
@@ -134,9 +134,9 @@ void WGCCaptureBenchmark::testLatencyUnderLoad()
     // THEN: Still under 1 second
     QVERIFY2(!image.isNull(), "Capture should succeed even under load");
     QVERIFY2(latencyMs < 1000,
-             qPrintable(u"High-load capture must still be < 1s, got: %1 ms"_s.arg(latencyMs)));
+             qPrintable(QString::fromUtf8("High-load capture must still be < 1s, got: %1 ms").arg(latencyMs)));
     QVERIFY2(latencyMs == 900,
-             qPrintable(u"Latency should match simulated value, got: %1 ms"_s.arg(latencyMs)));
+             qPrintable(QString::fromUtf8("Latency should match simulated value, got: %1 ms").arg(latencyMs)));
 }
 
 QTEST_MAIN(WGCCaptureBenchmark)

@@ -37,7 +37,7 @@ public:
      * @param pipeName Name of the pipe (default: "SpectacleHelper")
      * @param parent Parent object
      */
-    explicit NamedPipeServer(const QString &pipeName = u"SpectacleHelper"_s, QObject *parent = nullptr);
+    explicit NamedPipeServer(const QString &pipeName = QLatin1String("SpectacleHelper"), QObject *parent = nullptr);
 
     /**
      * @brief Destroy the named pipe server and stop listening

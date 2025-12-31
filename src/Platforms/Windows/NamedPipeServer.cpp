@@ -179,7 +179,7 @@ bool NamedPipeServer::PipeWorker::createAndConnectPipe()
 {
 #ifdef Q_OS_WIN
     // Build full pipe name: \\\\.\\pipe\\SpectacleHelper
-    QString fullPipeName = u"\\\\.\\pipe\\%1"_s.arg(m_server->pipeName());
+    QString fullPipeName = QString::fromUtf8("\\\\.\\pipe\\%1").arg(m_server->pipeName());
 
     // Convert to wchar_t for Win32 API
     std::wstring wPipeName = fullPipeName.toStdWString();

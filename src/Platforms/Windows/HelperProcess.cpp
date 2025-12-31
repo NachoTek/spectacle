@@ -35,7 +35,7 @@ HelperProcess::~HelperProcess()
 bool HelperProcess::createMessageWindow()
 {
     // Register window class
-    static const QString className = u"SpectacleHotkeyWindow"_s;
+    static const QString className = QLatin1String("SpectacleHotkeyWindow");
 
     WNDCLASSEXW wc = {};
     wc.cbSize = sizeof(WNDCLASSEXW);
@@ -101,7 +101,7 @@ bool HelperProcess::registerGlobalHotkey(int keyCode)
     }
 
     // Register with unique atom ID
-    int atom = GlobalAddAtomW((LPCWSTR)QString(u"ATOM_0x%1"_s.arg(keyCode, 0, 16).utf16());
+    int atom = GlobalAddAtomW((LPCWSTR)QString::fromUtf8("ATOM_0x%1").arg(keyCode, 0, 16).utf16());
     if (atom == 0) {
         qWarning("Failed to create atom: %lu", GetLastError());
         return false;

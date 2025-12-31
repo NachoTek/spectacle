@@ -37,23 +37,12 @@ private:
 #ifdef Q_OS_WIN
     NamedPipeServer *m_server = nullptr;
 #endif
-
-    bool waitForSignal(QObject *sender, const char *signal, int timeout = 5000);
 };
-
-bool NamedPipeServerTest::waitForSignal(QObject *sender, const char *signal, int timeout)
-{
-    QEventLoop loop;
-    QObject::connect(sender, signal, &loop, &QEventLoop::quit);
-    QTimer::singleShot(timeout, &loop, &QEventLoop::quit);
-    loop.exec();
-    return true;
-}
 
 void NamedPipeServerTest::initTestCase()
 {
 #ifdef Q_OS_WIN
-    m_server = new NamedPipeServer(u"SpectacleHelperTest"_s, this);
+    m_server = new NamedPipeServer(QLatin1String("SpectacleHelperTest"), this);
 #endif
 }
 
@@ -110,7 +99,7 @@ void NamedPipeServerTest::testClientConnects()
 
     // Simulate client connecting in separate thread
     QThread::create([&]() {
-        QString pipeName = u"\\\\.\\pipe\\SpectacleHelperTest"_s;
+        QString pipeName = QLatin1String("\\\\.\\pipe\\SpectacleHelperTest");
         std::wstring wPipeName = pipeName.toStdWString();
 
         HANDLE hPipe = CreateFileW(
@@ -150,7 +139,7 @@ void NamedPipeServerTest::testReceiveHotkeyMessage()
 
     // Simulate client sending hotkey message
     QThread::create([&]() {
-        QString pipeName = u"\\\\.\\pipe\\SpectacleHelperTest"_s;
+        QString pipeName = QLatin1String("\\\\.\\pipe\\SpectacleHelperTest");
         std::wstring wPipeName = pipeName.toStdWString();
 
         HANDLE hPipe = CreateFileW(
@@ -169,7 +158,7 @@ void NamedPipeServerTest::testReceiveHotkeyMessage()
 
             // Create hotkey message
             QJsonObject data;
-            data[u"keyCode"_s] = 44;  // Print Screen key
+            data[QLatin1String("keyCode")] = 44;  // Print Screen key
             QJsonDocument msg = IPCProtocol::hotkeyPressedMessage(44);
 
             // Send message
@@ -194,7 +183,7 @@ void NamedPipeServerTest::testReceiveHotkeyMessage()
     QJsonObject data = args.at(1).toJsonObject();
 
     QCOMPARE(type, IPCMessageType::HotkeyPressed);
-    QCOMPARE(data[u"keyCode"_s].toInt(), 44);
+    QCOMPARE(data[QLatin1String("keyCode")].toInt(), 44);
 
     m_server->stop();
 
@@ -212,7 +201,7 @@ void NamedPipeServerTest::testSendMessageToClient()
 
     // Simulate client receiving message
     QThread::create([&]() {
-        QString pipeName = u"\\\\.\\pipe\\SpectacleHelperTest"_s;
+        QString pipeName = QLatin1String("\\\\.\\pipe\\SpectacleHelperTest");
         std::wstring wPipeName = pipeName.toStdWString();
 
         HANDLE hPipe = CreateFileW(
@@ -242,7 +231,7 @@ void NamedPipeServerTest::testSendMessageToClient()
             // Verify JSON
             QJsonDocument json = QJsonDocument::fromJson(QByteArray(buffer, bytesRead));
             QVERIFY(json.isObject());
-            QCOMPARE(json.object()[u"type"_s].toString(), u"Pong"_s);
+            QCOMPARE(json.object()[QLatin1String("type")].toString(), QLatin1String("Pong"));
 
             CloseHandle(hPipe);
         }
@@ -272,7 +261,7 @@ void NamedPipeServerTest::testMultipleMessages()
 
     // Simulate client sending multiple messages
     QThread::create([&]() {
-        QString pipeName = u"\\\\.\\pipe\\SpectacleHelperTest"_s;
+        QString pipeName = QLatin1String("\\\\.\\pipe\\SpectacleHelperTest");
         std::wstring wPipeName = pipeName.toStdWString();
 
         HANDLE hPipe = CreateFileW(
@@ -291,7 +280,7 @@ void NamedPipeServerTest::testMultipleMessages()
             // Send multiple messages
             for (int i = 0; i < 3; ++i) {
                 QJsonObject data;
-                data[u"keyCode"_s] = i;
+                data[QLatin1String("keyCode")] = i;
                 QJsonDocument msg = IPCProtocol::hotkeyPressedMessage(i);
 
                 QByteArray jsonBytes = msg.toJson(QJsonDocument::Compact);
@@ -333,7 +322,7 @@ void NamedPipeServerTest::testInvalidJson()
 
     // Simulate client sending invalid JSON
     QThread::create([&]() {
-        QString pipeName = u"\\\\.\\pipe\\SpectacleHelperTest"_s;
+        QString pipeName = QLatin1String("\\\\.\\pipe\\SpectacleHelperTest");
         std::wstring wPipeName = pipeName.toStdWString();
 
         HANDLE hPipe = CreateFileW(

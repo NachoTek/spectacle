@@ -44,7 +44,7 @@ QImage WGCCaptureMock::captureFrameWithLatency(qint64 *latencyMs)
     if (m_simulateFailure) {
         qWarning("Mock WGC: Simulating capture failure");
         if (latencyMs) *latencyMs = -1;
-        Q_EMIT error(u"Simulated capture failure"_s);
+        Q_EMIT error(QLatin1String("Simulated capture failure"));
         return QImage();
     }
 
@@ -65,7 +65,7 @@ QImage WGCCaptureMock::captureFrameWithLatency(qint64 *latencyMs)
     // Verify performance requirement
     if (actualLatency >= 1000) {
         qWarning("Mock WGC: Latency exceeds 1 second: %lld ms", actualLatency);
-        Q_EMIT error(u"Capture latency exceeds 1 second"_s);
+        Q_EMIT error(QLatin1String("Capture latency exceeds 1 second"));
     }
 
     Q_EMIT frameCaptured(testImage);

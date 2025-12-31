@@ -4,8 +4,13 @@ project(SpectacleWindowsTests LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find Qt 6
-find_package(Qt6 REQUIRED COMPONENTS Core Test)
+# Enable Qt automoc for Q_OBJECT macro processing
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+# Find Qt 6 - add Gui component for QScreen
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Test)
 
 # Include Qt test framework
 enable_testing()
@@ -56,7 +61,7 @@ add_executable(selection_geometry_test
     ${SOURCE_DIR}/tests/Unit/SelectionGeometryTest.cpp
     ${GEOMETRY_SOURCES}
 )
-target_link_libraries(selection_geometry_test Qt6::Core Qt6::Test)
+target_link_libraries(selection_geometry_test Qt6::Core Qt6::Gui Qt6::Test)
 
 # Add tests to CTest
 add_test(NAME HelperProcessTest COMMAND helper_process_test)
