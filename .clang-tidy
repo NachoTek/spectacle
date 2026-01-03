@@ -1,0 +1,125 @@
+---
+# Clang-tidy configuration for Spectacle Windows Port
+# Based on KDE coding standards and C++20 best practices
+
+# Inherit from LLVM defaults with modern C++ checks
+InheritParentConfig: false
+
+# Checks to enable
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-narrowing-conversions,
+  -bugprone-suspicious-include,
+  cert-*,
+  -cert-err58-cpp,
+  clang-analyzer-*,
+  -clang-analyzer-alpha*,
+  cppcoreguidelines-*,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -cppcoreguidelines-avoid-c-arrays,
+  cppcoreguidelines-avoid-goto,
+  cppcoreguidelines-init-variables,
+  cppcoreguidelines-interfaces-global-init,
+  cppcoreguidelines-macro-to-enum,
+  cppcoreguidelines-missing-std-forward,
+  cppcoreguidelines-modernize,
+  cppcoreguidelines-no-malloc,
+  cppcoreguidelines-no-suspend-thumbnail-lock,
+  cppcoreguidelines-owning-memory,
+  cppcoreguidelines-prefer-member-initializer,
+  cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  cppcoreguidelines-pro-type-cstyle-cast,
+  cppcoreguidelines-pro-type-vararg,
+  cppcoreguidelines-slicing,
+  cppcoreguidelines-special-member-functions,
+  cppcoreguidelines-use-default-member-init,
+  google-*,
+  -google-readability-todo,
+  -google-runtime-references,
+  misc-*,
+  -misc-non-private-member-variables-in-classes,
+  -misc-use-anonymous-namespace,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -modernize-avoid-c-arrays,
+  performance-*,
+  portability-*,
+  readability-*,
+  -readability-avoid-const-params-in-decls,
+  -readability-function-cognitive-complexity,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -readability-named-parameter,
+  -readability-qualified-auto
+
+# Specific check options
+CheckOptions:
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  - key: readability-identifier-naming.FunctionCase
+    value: camelBack
+  - key: readability-identifier-naming.VariableCase
+    value: camelBack
+  - key: readability-identifier-naming.ParameterCase
+    value: camelBack
+  - key: readability-identifier-naming.MemberCase
+    value: CamelCase
+  - key: readability-identifier-naming.PrivateMemberPrefix
+    value: m
+  - key: readability-identifier-naming.ProtectedMemberPrefix
+    value: m
+  - key: readability-identifier-naming.ConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.EnumConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.GlobalConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.StaticConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.GlobalVariableCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.StaticVariableCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ConstantPointerCase
+    value: CamelCase
+  - key: readability-identifier-naming.ConstantParameterCase
+    value: camelBack
+  - key: readability-identifier-naming.NamespaceCase
+    value: CamelCase
+  - key: readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key: readability-identifier-naming.ScopedEnumConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.PrivateMethodPrefix
+    value: ''
+  - key: readability-identifier-naming.ProtectedMethodPrefix
+    value: ''
+  - key: cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor
+    value: '1'
+  - key: cppcoreguidelines-special-member-functions.AllowMissingMoveFunctionsWhenCopyIsDeleted
+    value: '1'
+  - key: cppcoreguidelines-explicit-virtual-functions.AllowOverrideAndFinal
+    value: '1'
+
+# Header filter (only check project headers)
+HeaderFilterRegex: '.*'
+
+# Format style (matches KDE format)
+FormatStyle: file
+
+# System include directories
+SystemIncludes:
+  - C:/Qt/6.9.0/msvc2022_64/include
+  - C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/include
+  - C:/Program Files (x86)/Windows Kits/10/Include

@@ -1,0 +1,202 @@
+name: Code Linting
+
+on:
+  push:
+    branches: [ master, main, planning-windows11-conversion ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  clang-tidy:
+    name: clang-tidy Static Analysis
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install Qt 6
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.0'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2022_64'
+        cache: true
+
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Install clang-tidy
+      run: |
+        # clang-tidy comes with LLVM/Clang - check if available
+        clang-tidy --version || echo "clang-tidy not found, installing LLVM"
+        # LLVM is pre-installed on windows-2022 runner
+
+    - name: Configure CMake for analysis
+      shell: pwsh
+      run: |
+        $env:Path = "C:\Qt\6.9.0\msvc2022_64\bin;$env:Path"
+        $env:Qt6_DIR = "C:\Qt\6.9.0\msvc2022_64"
+
+        New-Item -ItemType Directory -Force -Path build-lint
+
+        cd build-lint
+        cmake .. `
+          -DCMAKE_BUILD_TYPE=Debug `
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON `
+          -DCMAKE_CXX_STANDARD=20 `
+          -DQt6_DIR="C:\Qt\6.9.0\msvc2022_64" `
+          -DCMAKE_PREFIX_PATH="C:\Qt\6.9.0\msvc2022_64"
+
+    - name: Run clang-tidy on Windows Platform code
+      shell: pwsh
+      run: |
+        $env:Path = "C:\Qt\6.9.0\msvc2022_64\bin;$env:Path"
+
+        # Run clang-tidy on Windows platform sources
+        Write-Host "Running clang-tidy on Windows platform code..."
+
+        $sources = @(
+          "src/Platforms/Windows/WindowEventMonitor.cpp",
+          "src/Platforms/Windows/WGCCapture.cpp",
+          "src/Platforms/Windows/WindowDetector.cpp",
+          "src/Platforms/Windows/HelperProcess.cpp",
+          "src/Platforms/Windows/NamedPipeServer.cpp",
+          "src/Platforms/Windows/IPCProtocol.cpp",
+          "src/Gui/Overlay/SelectionGeometry.cpp",
+          "src/Gui/Overlay/SelectionOverlay.cpp"
+        )
+
+        $errors = 0
+
+        foreach ($source in $sources) {
+          if (Test-Path $source)) {
+            Write-Host "Analyzing $source..."
+            clang-tidy $source `
+              --config-file=.clang-tidy `
+              -p build-lint `
+              --warnings-as-errors='' `
+              2>&1 | Tee-Object -FilePath clang-tidy-output.txt -Append
+
+            if ($LASTEXITCODE -ne 0) {
+              $errors++
+            }
+          }
+        }
+
+        Write-Host "`nclang-tidy analysis complete."
+        Write-Host "Files with issues: $errors"
+
+        # Display summary
+        if (Test-Path clang-tidy-output.txt) {
+          Get-Content clang-tidy-output.txt
+        }
+
+    - name: Upload clang-tidy results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: clang-tidy-results
+        path: clang-tidy-output.txt
+
+  qmllint:
+    name: QML Linting
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Qt 6
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.0'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2022_64'
+        cache: true
+
+    - name: Run qmllint on all QML files
+      shell: pwsh
+      run: |
+        $env:Path = "C:\Qt\6.9.0\msvc2022_64\bin;$env:Path"
+
+        Write-Host "Running qmllint on QML files..."
+
+        # Find all .qml files
+        $qmlFiles = Get-ChildItem -Path . -Filter *.qml -Recurse -File
+        $errors = 0
+
+        foreach ($file in $qmlFiles) {
+          # Skip build directories
+          if ($file.FullName -match 'build|_bmad') {
+            continue
+          }
+
+          Write-Host "Checking $($file.FullName)..."
+          qmllint $($file.FullName) 2>&1 | Tee-Object -FilePath qmllint-output.txt -Append
+
+          if ($LASTEXITCODE -ne 0) {
+            $errors++
+            Write-Host "::error file=$($file.Name)::QMllint found issues"
+          }
+        }
+
+        Write-Host "`nqmllint analysis complete."
+        Write-Host "Files with issues: $errors"
+
+        # Display summary
+        if (Test-Path qmllint-output.txt) {
+          Get-Content qmllint-output.txt
+        }
+
+        if ($errors -gt 0) {
+          Write-Host "##[error] qmllint found $errors file(s) with issues"
+          exit 1
+        }
+
+    - name: Upload qmllint results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: qmllint-results
+        path: qmllint-output.txt
+
+  format-check:
+    name: Code Format Check (clang-format)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install clang-format
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format
+
+    - name: Check formatting
+      run: |
+        echo "Checking code formatting with clang-format..."
+
+        # Check if .clang-format exists
+        if [ ! -f .clang-format ]; then
+          echo "Warning: .clang-format not found, using LLVM style"
+        fi
+
+        # Find all C++/QML headers and sources
+        find src -name "*.cpp" -o -name "*.h" -o -name "*.qml" | while read file; do
+          echo "Checking $file..."
+          if ! clang-format --dry-run --Werror "$file" 2>&1; then
+            echo "::error file=$file::Code formatting issues found"
+            echo "Run: clang-format -i $file"
+          fi
+        done
+
+        echo "Format check complete"
