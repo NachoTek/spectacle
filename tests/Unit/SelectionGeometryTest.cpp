@@ -38,6 +38,8 @@ private Q_SLOTS:
     void testResizeFromEdgeHandle();
     void testSelectionTracksWindowMovement();
     void testOutOfBoundsSelectionClamped();
+    void testShiftResizingMaintainsAspectRatio();
+    void testResizeConstrainedToScreen();
 };
 
 void SelectionGeometryTest::initTestCase()

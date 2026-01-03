@@ -244,7 +244,7 @@ QRect SelectionGeometry::resizeFromHandle(const QRect &rect, int handle, const Q
                 // Moving top edge: adjust height, then width based on aspect ratio
                 int newHeight = rect.bottom() - newPos.y();
                 qint64 newWidth64 = static_cast<qint64>(newHeight) * static_cast<qint64>(aspectRatio);
-                int newWidth = static_cast<int>(qBound<qint64>(0, newWidth64, INT_MAX));
+                int newWidth = static_cast<int>(qBound<qint64>(static_cast<qint64>(0), newWidth64, static_cast<qint64>(INT_MAX)));
                 int widthDelta = newWidth - rect.width();
 
                 result.setTop(newPos.y());
@@ -257,7 +257,7 @@ QRect SelectionGeometry::resizeFromHandle(const QRect &rect, int handle, const Q
             {
                 int newHeight = newPos.y() - rect.top();
                 qint64 newWidth64 = static_cast<qint64>(newHeight) * static_cast<qint64>(aspectRatio);
-                int newWidth = static_cast<int>(qBound<qint64>(0, newWidth64, INT_MAX));
+                int newWidth = static_cast<int>(qBound<qint64>(static_cast<qint64>(0), newWidth64, static_cast<qint64>(INT_MAX)));
                 int widthDelta = newWidth - rect.width();
 
                 result.setBottom(newPos.y());
@@ -270,7 +270,7 @@ QRect SelectionGeometry::resizeFromHandle(const QRect &rect, int handle, const Q
             {
                 int newWidth = rect.right() - newPos.x();
                 qint64 newHeight64 = static_cast<qint64>(newWidth) * 1000 / static_cast<qint64>(aspectRatio * 1000);
-                int newHeight = static_cast<int>(qBound<qint64>(0, newHeight64, INT_MAX));
+                int newHeight = static_cast<int>(qBound<qint64>(static_cast<qint64>(0), newHeight64, static_cast<qint64>(INT_MAX)));
                 int heightDelta = newHeight - rect.height();
 
                 result.setLeft(newPos.x());
@@ -283,7 +283,7 @@ QRect SelectionGeometry::resizeFromHandle(const QRect &rect, int handle, const Q
             {
                 int newWidth = newPos.x() - rect.left();
                 qint64 newHeight64 = static_cast<qint64>(newWidth) * 1000 / static_cast<qint64>(aspectRatio * 1000);
-                int newHeight = static_cast<int>(qBound<qint64>(0, newHeight64, INT_MAX));
+                int newHeight = static_cast<int>(qBound<qint64>(static_cast<qint64>(0), newHeight64, static_cast<qint64>(INT_MAX)));
                 int heightDelta = newHeight - rect.height();
 
                 result.setRight(newPos.x());

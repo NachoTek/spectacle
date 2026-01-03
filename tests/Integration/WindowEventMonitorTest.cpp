@@ -205,6 +205,6 @@ private slots:
 
 QTEST_MAIN(WindowEventMonitorTest)
 
-#include "moc_WindowEventMonitorTest.cpp"
+#include "WindowEventMonitorTest.moc"
 
 #endif // Q_OS_WIN
