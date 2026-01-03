@@ -48,7 +48,7 @@ development_status:
   1-5-saving-defaults: backlog
   1-6-additional-capture-modes: backlog
   1-7-app-window-quick-actions: backlog
-  1-8-window-movement-detection-overlay-persistence: done
+  1-8-window-movement-detection-overlay-persistence: in-progress
   epic-1-retrospective: optional
   epic-2: backlog
   2-1-start-recording-from-app-overlay: backlog

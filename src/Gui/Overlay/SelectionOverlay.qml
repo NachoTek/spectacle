@@ -88,20 +88,24 @@ Rectangle {
     }
 
     // Quick tray (floating controls)
+    // Design rationale: Always visible to provide Cancel button (abort capture)
+    // Individual buttons show/hide based on state (Confirm/Refresh require selection)
     Rectangle {
         id: quickTray
         objectName: "quickTray"
 
         anchors.centerIn: parent
-        width: cancelBtn.width + confirmBtn.width + 20
+        width: trayRow.implicitWidth + 20
         height: 40
         color: "#E0000000" // Semi-transparent black
         radius: 8
 
-        // Position to avoid selection (simplified)
-        visible: !_overlay.hasSelection
+        // Always visible: Cancel button available to abort capture at any time
+        // Confirm/Refresh buttons only visible when selection exists
+        visible: true
 
         Row {
+            id: trayRow
             anchors.centerIn: parent
             spacing: 10
 

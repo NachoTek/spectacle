@@ -120,4 +120,16 @@ ecm_add_test(
         Qt::QuickWidgets
 )
 
+# Window Event Monitor Tests (Story 1.8 - Window Movement Detection)
+SET(WINDOW_EVENT_MONITOR_TEST_SRCS
+    Integration/WindowEventMonitorTest.cpp
+    ../src/Platforms/Windows/WindowEventMonitor.cpp
+)
+
+ecm_add_test(
+    ${WINDOW_EVENT_MONITOR_TEST_SRCS}
+    TEST_NAME "window_event_monitor_test"
+    LINK_LIBRARIES  Qt::Test
+)
+
 

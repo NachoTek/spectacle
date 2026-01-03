@@ -1,6 +1,6 @@
 # Story 1.8: Window Movement Detection & Overlay Persistence
 
-Status: done
+Status: in-progress
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -103,6 +103,17 @@ so that the selection can update automatically or clear appropriately.
 - [x] Test with minimized/hidden windows (should not track) - implicit behavior (would work correctly)
 - [x] **Test:** `testHookFailureGracefulDegradation()` passes (error logging verified)
 - [x] **Test:** `testMultiMonitorWindowTracking()` passes (WindowDetector validated)
+
+### Review Follow-ups (AI) - Second-Pass Code Review (2025-12-31)
+
+- [x] [AI-Review][HIGH] Fix thread-safety violation in trackedWindow() getter - must lock mutex before accessing m_trackedHwnd [WindowEventMonitor.h:62]
+- [x] [AI-Review][MEDIUM] Implement minimized/hidden window filtering - add IsWindowVisible() and IsIconic() checks in handleWindowEvent() [WindowEventMonitor.cpp:211]
+- [x] [AI-Review][MEDIUM] Emit errorOccurred signal when GetWindowRect fails - provide user feedback instead of silent failure [WindowEventMonitor.cpp:218]
+- [x] [AI-Review][MEDIUM] Add top-level window validation in setTrackedWindow() - prevent tracking child windows/buttons [WindowEventMonitor.cpp:107]
+- [x] [AI-Review][MEDIUM] Revert or document quick tray visibility change - current visible:true violates Story 1.1 design [SelectionOverlay.qml:102]
+- [x] [AI-Review][LOW] Consider tracking first-event flag to distinguish "no events yet" from "invalid rect" in debounce logic [WindowEventMonitor.cpp:34]
+
+**All review follow-ups completed: 2025-12-31**
 
 ## Dev Notes
 
@@ -450,6 +461,13 @@ _Implementation completion notes will be added during development_
 - ✅ Tests created for WindowEventMonitor (integration tests)
 - ⚠️ Full Windows GUI testing required for end-to-end validation
 
+**Code Review Fixes (2025-12-31):**
+- [x] Added destroy hook registration and queued dispatch for WinEvent callbacks
+- [x] Fixed debounce to emit latest bounds and clamp selection updates to screen
+- [x] Made refresh control reachable with selection active
+- [x] Expanded WindowEventMonitor tests (movement, resize, destroy, debounce) and wired into CMake
+- [x] Added SelectionGeometry movement/clamp unit tests
+
 ### File List
 
 **New Files Created:**
@@ -467,3 +485,12 @@ _Implementation completion notes will be added during development_
 - `src/Gui/Overlay/SelectionOverlay.qml` - Added refresh button to quick tray (Story 1.8)
 - `src/Gui/Overlay/SelectionGeometry.h` - Added updatePosition() method declaration (Story 1.8)
 - `src/Gui/Overlay/SelectionGeometry.cpp` - Implemented delta-based position updates (Story 1.8)
+- `tests/Integration/WindowEventMonitorTest.cpp` - Expanded WinEventMonitor integration tests (Story 1.8)
+- `tests/Unit/SelectionGeometryTest.cpp` - Added movement/clamp tests for updatePosition() (Story 1.8)
+- `tests/CMakeLists.txt` - Added WindowEventMonitor test target (Story 1.8)
+
+
+
+
+
+

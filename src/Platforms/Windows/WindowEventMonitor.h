@@ -10,6 +10,7 @@
 #include <QObject>
 #include <QMutex>
 #include <QTimer>
+#include <QRect>
 
 #ifdef Q_OS_WIN
 
@@ -57,8 +58,9 @@ public:
 
     /**
      * @brief Get the currently tracked window handle
+     * Thread-safe: locks mutex before accessing m_trackedHwnd
      */
-    HWND trackedWindow() const { return m_trackedHwnd; }
+    HWND trackedWindow() const;
 
 Q_SIGNALS:
     /**
@@ -82,6 +84,8 @@ Q_SIGNALS:
     void errorOccurred(const QString &error);
 
 private:
+    friend class WindowEventMonitorTest;
+
     bool initializeHook();
     void cleanupHook();
     static void CALLBACK winEventProc(HWINEVENTHOOK hWinEventHook,
@@ -94,7 +98,8 @@ private:
 
     void handleWindowEvent(DWORD event, HWND hwnd);
 
-    HWINEVENTHOOK m_eventHook;
+    HWINEVENTHOOK m_moveHook;
+    HWINEVENTHOOK m_destroyHook;
     HWND m_trackedHwnd;
     bool m_running;
 
@@ -103,7 +108,8 @@ private:
 
     // Movement debounce timer
     QTimer *m_debounceTimer;
-    QPoint m_pendingDelta;
+    QRect m_pendingRect;
+    bool m_hasReceivedEvents;  // Track if any events received (distinguish from invalid rect)
 };
 
 #endif // Q_OS_WIN

@@ -58,6 +58,114 @@ private slots:
         monitor.stop();
     }
 
+    void testMovingWindowUpdatesSelectionBounds()
+    {
+        WindowEventMonitor monitor;
+
+        QVERIFY(monitor.start());
+
+        HWND hwnd = GetDesktopWindow();
+        monitor.setTrackedWindow(hwnd);
+
+        QSignalSpy spyMoved(&monitor, &WindowEventMonitor::windowMoved);
+
+        monitor.handleWindowEvent(EVENT_OBJECT_LOCATIONCHANGE, hwnd);
+
+        QVERIFY(spyMoved.wait(150));
+        QCOMPARE(spyMoved.count(), 1);
+
+        const QList<QVariant> args = spyMoved.takeFirst();
+        QCOMPARE(args.size(), 4);
+        QVERIFY(args.at(2).toInt() > 0);
+        QVERIFY(args.at(3).toInt() > 0);
+
+        monitor.stop();
+    }
+
+    void testResizeUpdatesSelectionBounds()
+    {
+        WindowEventMonitor monitor;
+
+        QVERIFY(monitor.start());
+
+        HWND hwnd = GetDesktopWindow();
+        monitor.setTrackedWindow(hwnd);
+
+        QSignalSpy spyMoved(&monitor, &WindowEventMonitor::windowMoved);
+
+        monitor.handleWindowEvent(EVENT_OBJECT_LOCATIONCHANGE, hwnd);
+
+        QVERIFY(spyMoved.wait(150));
+        QCOMPARE(spyMoved.count(), 1);
+
+        const QList<QVariant> args = spyMoved.takeFirst();
+        QCOMPARE(args.size(), 4);
+        QVERIFY(args.at(2).toInt() > 0);
+        QVERIFY(args.at(3).toInt() > 0);
+
+        monitor.stop();
+    }
+
+    void testClosingWindowClearsSelection()
+    {
+        WindowEventMonitor monitor;
+
+        QVERIFY(monitor.start());
+
+        HWND hwnd = GetDesktopWindow();
+        monitor.setTrackedWindow(hwnd);
+
+        QSignalSpy spyDestroyed(&monitor, &WindowEventMonitor::windowDestroyed);
+
+        monitor.handleWindowEvent(EVENT_OBJECT_DESTROY, hwnd);
+
+        QVERIFY(spyDestroyed.wait(50));
+        QCOMPARE(spyDestroyed.count(), 1);
+
+        monitor.stop();
+    }
+
+    void testOverlayWindowCloseIgnored()
+    {
+        WindowEventMonitor monitor;
+
+        QVERIFY(monitor.start());
+
+        HWND hwnd = GetDesktopWindow();
+        monitor.setTrackedWindow(hwnd);
+
+        QSignalSpy spyDestroyed(&monitor, &WindowEventMonitor::windowDestroyed);
+
+        HWND otherWindow = reinterpret_cast<HWND>(0x12345);
+        monitor.handleWindowEvent(EVENT_OBJECT_DESTROY, otherWindow);
+
+        QVERIFY(!spyDestroyed.wait(80));
+
+        monitor.stop();
+    }
+
+    void testRapidMovementsDebounced()
+    {
+        WindowEventMonitor monitor;
+
+        QVERIFY(monitor.start());
+
+        HWND hwnd = GetDesktopWindow();
+        monitor.setTrackedWindow(hwnd);
+
+        QSignalSpy spyMoved(&monitor, &WindowEventMonitor::windowMoved);
+
+        monitor.handleWindowEvent(EVENT_OBJECT_LOCATIONCHANGE, hwnd);
+        monitor.handleWindowEvent(EVENT_OBJECT_LOCATIONCHANGE, hwnd);
+        monitor.handleWindowEvent(EVENT_OBJECT_LOCATIONCHANGE, hwnd);
+
+        QVERIFY(spyMoved.wait(150));
+        QCOMPARE(spyMoved.count(), 1);
+        QVERIFY(!spyMoved.wait(80));
+
+        monitor.stop();
+    }
+
     void testStopWithoutStartDoesNotCrash()
     {
         // Test: Stopping without starting is safe

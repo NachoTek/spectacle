@@ -36,6 +36,8 @@ private Q_SLOTS:
     void testResizeFromHandle();
     void testResizeFromCornerHandle();
     void testResizeFromEdgeHandle();
+    void testSelectionTracksWindowMovement();
+    void testOutOfBoundsSelectionClamped();
 };
 
 void SelectionGeometryTest::initTestCase()
@@ -209,6 +211,33 @@ void SelectionGeometryTest::testResizeFromEdgeHandle()
     QCOMPARE(resized.bottom(), original.bottom());
     QCOMPARE(resized.left(), original.left());
     QCOMPARE(resized.right(), original.right());
+}
+
+void SelectionGeometryTest::testSelectionTracksWindowMovement()
+{
+    // GIVEN: Selection rectangle
+    QRect original(100, 100, 200, 200);
+
+    // WHEN: Applying a movement delta
+    QRect moved = m_geom->updatePosition(original, 50, -25);
+
+    // THEN: Rectangle should move by delta
+    QCOMPARE(moved.topLeft(), QPoint(150, 75));
+    QCOMPARE(moved.size(), original.size());
+}
+
+void SelectionGeometryTest::testOutOfBoundsSelectionClamped()
+{
+    // GIVEN: Selection rectangle near the bottom-right corner
+    QRect screenRect = QGuiApplication::primaryScreen()->geometry();
+    QRect original(screenRect.right() - 10, screenRect.bottom() - 10, 50, 50);
+
+    // WHEN: Moving beyond screen bounds
+    QRect moved = m_geom->updatePosition(original, 20, 20);
+
+    // THEN: Rectangle is clamped to screen bounds
+    QVERIFY(moved.right() <= screenRect.right());
+    QVERIFY(moved.bottom() <= screenRect.bottom());
 }
 
 void SelectionGeometryTest::testShiftResizingMaintainsAspectRatio()

@@ -68,7 +68,14 @@ SelectionOverlay::SelectionOverlay(QObject *parent)
         }
 
         // Calculate new selection bounds
-        m_selectionRect = QRect(newX, newY, newWidth, newHeight);
+        SelectionGeometry geom;
+        QRect updated = QRect(newX, newY, newWidth, newHeight);
+        updated = geom.clampToScreen(updated);
+        if (!geom.isValidSelection(updated)) {
+            m_selectionRect = QRect();
+        } else {
+            m_selectionRect = updated;
+        }
         Q_EMIT selectionChanged();
         qDebug("Selection updated to window movement: %dx%d at (%d, %d)",
                newWidth, newHeight, newX, newY);
