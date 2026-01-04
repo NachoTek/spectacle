@@ -117,9 +117,3 @@ HeaderFilterRegex: '.*'
 
 # Format style (matches KDE format)
 FormatStyle: file
-
-# System include directories
-SystemIncludes:
-  - C:/Qt/6.9.0/msvc2022_64/include
-  - C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/include
-  - C:/Program Files (x86)/Windows Kits/10/Include
