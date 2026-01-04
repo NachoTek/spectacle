@@ -78,6 +78,8 @@ target_link_libraries(window_event_monitor_test Qt6::Core Qt6::Gui Qt6::Test)
 # Annotation Data Model Test (Story 1.3)
 set(ANNOTATION_SOURCES
     ${SOURCE_DIR}/src/Gui/Annotation/Annotation.cpp
+    ${SOURCE_DIR}/src/Gui/Annotation/AnnotationListModel.cpp
+    ${SOURCE_DIR}/src/Gui/Annotation/AnnotationRenderer.cpp
 )
 
 add_executable(annotation_test
