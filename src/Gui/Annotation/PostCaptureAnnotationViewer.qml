@@ -21,7 +21,6 @@ ApplicationWindow {
     minimumHeight: 480
 
     // Properties to be set from C++
-    property var capturedImage: null
     property var annotationModel: null
 
     // Task 1.3: Image display area with annotation overlay
@@ -30,10 +29,10 @@ ApplicationWindow {
         anchors.fill: parent
         anchors.margins: 80 // Leave space for toolbar at bottom
 
-        // Captured image
+        // Captured image (CRITICAL #3 fix - uses image provider with capturedImageId)
         Image {
             id: capturedImageDisplay
-            source: capturedImage !== null ? "image://capture/" + root.capturedImage : ""
+            source: "image://capture/" + capturedImageId
             anchors.centerIn: parent
             fillMode: Image.PreserveAspectFit
 

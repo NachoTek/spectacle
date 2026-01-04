@@ -93,6 +93,7 @@ set(POSTCAPTURE_SOURCES
     ${SOURCE_DIR}/src/Gui/Annotation/Annotation.cpp
     ${SOURCE_DIR}/src/Gui/Annotation/AnnotationListModel.cpp
     ${SOURCE_DIR}/src/Gui/Annotation/AnnotationRenderer.cpp
+    ${SOURCE_DIR}/src/Gui/Annotation/CapturedImageProvider.cpp  # CRITICAL #3
     ${SOURCE_DIR}/src/Gui/Annotation/PostCaptureAnnotationViewer.cpp
 )
 

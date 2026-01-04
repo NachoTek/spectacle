@@ -11,6 +11,7 @@
 #ifdef Q_OS_WIN
 
 #include "AnnotationRenderer.h"
+#include "CapturedImageProvider.h"
 
 #include <QApplication>
 #include <QClipboard>
@@ -36,6 +37,7 @@ PostCaptureAnnotationViewer::PostCaptureAnnotationViewer(const QImage &capturedI
     , m_clipboard(QApplication::clipboard())
     , m_clipboardUpdateTimer(new QTimer(this))
     , m_hasUnsavedChanges(false)
+    , m_imageProvider(nullptr)  // CRITICAL #3: Will be initialized in setupQml
 {
     // Task 3.2: Create deep copy of annotation model (not reference)
     m_annotationModel = new AnnotationListModel(this);
@@ -80,6 +82,15 @@ PostCaptureAnnotationViewer::~PostCaptureAnnotationViewer()
 
 void PostCaptureAnnotationViewer::setupQml()
 {
+    // CRITICAL #3: Create and register image provider for QML
+    m_imageProvider = new CapturedImageProvider();
+    engine()->addImageProvider(QLatin1String("capture"), m_imageProvider);
+
+    // Register captured image with provider using unique ID
+    QString imageId = QString::number(reinterpret_cast<quintptr>(this));
+    m_imageProvider->setImage(imageId, m_capturedImage);
+    rootContext()->setContextProperty(QStringLiteral("capturedImageId"), imageId);
+
     // Set QML source
     setSource(QUrl(QStringLiteral("qrc:/qml/PostCaptureAnnotationViewer.qml")));
 

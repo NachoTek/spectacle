@@ -10,6 +10,7 @@
 #define POSTCAPTUREANNOTATIONVIEWER_H
 
 #include "AnnotationListModel.h"
+#include "CapturedImageProvider.h"
 
 #include <QImage>
 #include <QObject>
@@ -134,6 +135,7 @@ private:
     QClipboard *m_clipboard;
     QTimer *m_clipboardUpdateTimer;
     bool m_hasUnsavedChanges;
+    CapturedImageProvider *m_imageProvider;  // CRITICAL #3: Image provider for QML
 };
 
 #endif // Q_OS_WIN
