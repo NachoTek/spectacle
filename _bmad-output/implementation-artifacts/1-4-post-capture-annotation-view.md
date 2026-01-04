@@ -103,10 +103,10 @@ Code review completed 2025-01-04: **Changes Requested** - 5 CRITICAL, 5 MAJOR, 3
   - [ ] Update QML Image source to use image provider URL
   - [ ] Update CMakeLists to include new image provider files
 
-- [ ] [AI-Review] CRITICAL #4: Missing AnnotationListModel deep copy method (HIGH - violates requirement)
-  - [ ] CHOICE: Add copy constructor to AnnotationListModel OR update story requirements
-  - [ ] If Option A: Implement copy constructor and update PostCaptureAnnotationViewer
-  - [ ] If Option B: Update story file to remove copy constructor requirement
+- [x] [AI-Review] CRITICAL #4: Missing AnnotationListModel deep copy method (HIGH - violates requirement)
+  - [x] CHOICE: Add copy constructor to AnnotationListModel OR update story requirements
+  - [x] If Option B: Update story file to remove copy constructor requirement
+  - [x] Updated File Structure Requirements section to document manual deep copy approach
 
 - [ ] [AI-Review] MAJOR #5: Missing keyboard shortcuts in QML (MEDIUM - Ctrl+S, Ctrl+C)
   - [ ] Add Ctrl+S handler in Keys.onPressed to trigger Save As
@@ -201,7 +201,8 @@ src/Gui/Overlay/SelectionOverlay.h
   - Add signal: openPostCaptureView(QImage, AnnotationListModel*)
 
 src/Gui/Annotation/AnnotationListModel.h
-  - Add copy constructor or clone() method for deep copy (to avoid shared state)
+  - Note: Manual deep copy used in PostCaptureAnnotationViewer (lines 41-48)
+  - Copy constructor not implemented as manual iteration provides equal functionality
 
 src/Gui/Annotation/AnnotationRenderer.h/cpp
   - Enhance to support rendering on arbitrary background images (already done in Story 1.3)
