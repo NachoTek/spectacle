@@ -3,10 +3,12 @@
  *
  *  Selection Overlay QML Component
  *  Story 1.1 - Full-Screen Capture Overlay
+ *  Story 1.3 - Pre-Capture Annotation Tools
  */
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15 as Controls
+import "qrc:/overlay/Annotation"
 
 // Transparent full-screen overlay
 Rectangle {
@@ -19,6 +21,19 @@ Rectangle {
         anchors.fill: parent
         color: "#80000000" // 50% black
         opacity: 0.3
+    }
+
+    // Story 1.3: Annotation canvas (renders all annotations on top of overlay)
+    AnnotationCanvas {
+        id: annotationCanvas
+        anchors.fill: parent
+        z: 2  // Above selection box
+        annotationModel: _overlay.annotationModel
+        selectionRect: Qt.rect(_overlay.selectionRect.x,
+                               _overlay.selectionRect.y,
+                               _overlay.selectionRect.width,
+                               _overlay.selectionRect.height)
+        visible: _overlay.annotationModel !== null
     }
 
     // Target highlighter (Story 1.2 - Window Targeting)
@@ -83,6 +98,104 @@ Rectangle {
                 cursorShape: handleIndex < 4 ?
                     (handleIndex % 2 === 0 ? Qt.SizeFDiagCursor : Qt.SizeVerCursor) :
                     (handleIndex % 2 === 0 ? Qt.SizeFDiagCursor : Qt.SizeHorCursor)
+            }
+        }
+    }
+
+    // Story 1.3: Annotation toolbar (shown when selection exists)
+    // Positioned above quick tray, contains tool and style pickers
+    Rectangle {
+        id: annotationToolbarContainer
+        visible: _overlay.hasSelection
+
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: quickTray.top
+        anchors.bottomMargin: 10
+
+        width: toolbarColumn.implicitWidth + 20
+        height: toolbarColumn.implicitHeight + 20
+        color: "#E0000000" // Semi-transparent black
+        radius: 8
+
+        Column {
+            id: toolbarColumn
+            anchors.centerIn: parent
+            spacing: 10
+
+            // Tool picker (Free draw, Box, Circle, None)
+            Row {
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 5
+
+                Repeater {
+                    model: [
+                        { tool: 1, name: "✏️", tooltip: "Free Draw" },
+                        { tool: 3, name: "⬜", tooltip: "Box" },
+                        { tool: 4, name: "⭕", tooltip: "Circle" },
+                        { tool: 0, name: "❌", tooltip: "None" }
+                    ]
+
+                    Rectangle {
+                        width: 36
+                        height: 36
+                        color: _overlay.currentTool === modelData.tool ? "#00AAFF" : "#404040"
+                        border.color: "white"
+                        border.width: 2
+                        radius: 6
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: modelData.name
+                            font.pixelSize: 18
+                        }
+
+                        Controls.MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onClicked: {
+                                _overlay.setCurrentTool(modelData.tool)
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Color and stroke size picker
+            AnnotationToolbar {
+                id: annotationToolbar
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                onColorPicked: function(color) {
+                    _overlay.setCurrentColor(color)
+                }
+
+                onStrokeSizePicked: function(size) {
+                    _overlay.setCurrentStrokeWidth(size)
+                }
+            }
+
+            // Undo button
+            Controls.Button {
+                id: undoBtn
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "↩️ Undo"
+
+                background: Rectangle {
+                    color: undoBtn.pressed ? "#666666" :
+                           undoBtn.hovered ? "#888888" : "#555555"
+                    radius: 4
+                }
+
+                contentItem: Text {
+                    text: undoBtn.text
+                    color: "white"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                onClicked: {
+                    _overlay.undoLastAnnotation()
+                }
             }
         }
     }
@@ -189,15 +302,31 @@ Rectangle {
     }
 
     // Mouse area for selection drawing
+    // Story 1.3: Also handles annotation drawing when tool is selected
     MouseArea {
         anchors.fill: parent
         objectName: "selectionArea"
 
         cursorShape: Qt.CrossCursor
 
+        // Story 1.3: Free draw annotation state
+        property var freeDrawPoints: []
+
         onPressed: function(mouse) {
             console.log("Pressed at:", mouse.x, mouse.y)
-            _overlay.mousePress(Qt.point(mouse.x, mouse.y))
+
+            // Story 1.3: Handle annotation tool press
+            if (_overlay.hasSelection && _overlay.currentTool !== 0) {
+                // Tool selected - start annotation
+                if (_overlay.currentTool === 1) {
+                    // Free draw - start collecting points
+                    freeDrawPoints = [Qt.point(mouse.x, mouse.y)]
+                }
+                // Box and Circle will be handled in onReleased
+            } else {
+                // No tool - normal selection mode
+                _overlay.mousePress(Qt.point(mouse.x, mouse.y))
+            }
         }
 
         onPositionChanged: function(mouse) {
@@ -207,13 +336,48 @@ Rectangle {
             }
 
             if (pressed) {
-                _overlay.mouseMove(Qt.point(mouse.x, mouse.y))
+                // Story 1.3: Free draw annotation - collect points
+                if (_overlay.currentTool === 1 && freeDrawPoints.length > 0) {
+                    freeDrawPoints.push(Qt.point(mouse.x, mouse.y))
+                    // TODO: Render preview of free draw path
+                } else if (_overlay.currentTool === 0) {
+                    // No tool - normal selection dragging
+                    _overlay.mouseMove(Qt.point(mouse.x, mouse.y))
+                }
             }
         }
 
         onReleased: function(mouse) {
             console.log("Released at:", mouse.x, mouse.y)
-            _overlay.mouseRelease(Qt.point(mouse.x, mouse.y))
+
+            // Story 1.3: Handle annotation tool release
+            if (_overlay.hasSelection && _overlay.currentTool !== 0) {
+                var startPt = freeDrawPoints.length > 0 ? freeDrawPoints[0] : null
+                var endPt = Qt.point(mouse.x, mouse.y)
+
+                if (_overlay.currentTool === 1 && freeDrawPoints.length > 1) {
+                    // Free draw - add annotation with collected points
+                    _overlay.addFreeDrawAnnotation(freeDrawPoints)
+                    freeDrawPoints = []
+                } else if (_overlay.currentTool === 3 && startPt && endPt) {
+                    // Box - create from start to end points
+                    var x = Math.min(startPt.x, endPt.x)
+                    var y = Math.min(startPt.y, endPt.y)
+                    var width = Math.abs(endPt.x - startPt.x)
+                    var height = Math.abs(endPt.y - startPt.y)
+                    _overlay.addBoxAnnotation(Qt.rect(x, y, width, height))
+                } else if (_overlay.currentTool === 4 && startPt && endPt) {
+                    // Circle - create from start to end points (bounding box)
+                    var x = Math.min(startPt.x, endPt.x)
+                    var y = Math.min(startPt.y, endPt.y)
+                    var width = Math.abs(endPt.x - startPt.x)
+                    var height = Math.abs(endPt.y - startPt.y)
+                    _overlay.addCircleAnnotation(Qt.rect(x, y, width, height))
+                }
+            } else {
+                // No tool - normal selection mode
+                _overlay.mouseRelease(Qt.point(mouse.x, mouse.y))
+            }
         }
     }
 

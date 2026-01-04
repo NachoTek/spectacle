@@ -132,4 +132,18 @@ ecm_add_test(
     LINK_LIBRARIES  Qt::Test
 )
 
+# Annotation Data Model Tests (Story 1.3 - Pre-Capture Annotation Tools)
+SET(ANNOTATION_TEST_SRCS
+    Unit/AnnotationTest.cpp
+    ../src/Gui/Annotation/Annotation.cpp
+    ../src/Gui/Annotation/AnnotationListModel.cpp
+)
+
+ecm_add_test(
+    ${ANNOTATION_TEST_SRCS}
+    TEST_NAME "annotation_test"
+    LINK_LIBRARIES  Qt::Test
+        Qt::Gui
+)
+
 

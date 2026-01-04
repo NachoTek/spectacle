@@ -62,6 +62,9 @@ target_sources(spectacle PRIVATE
     SpectacleCore.cpp
     SpectacleDBusAdapter.cpp
     VideoFormatModel.cpp
+    # Story 1.3: Annotation system (Windows only)
+    Gui/Annotation/Annotation.cpp
+    Gui/Annotation/AnnotationListModel.cpp
 )
 
 if(XCB_FOUND)
@@ -198,6 +201,9 @@ qt_target_qml_sources(spectacle
     Gui/TtToolButton.qml
     Gui/UndoRedoGroup.qml
     Gui/ViewerPage.qml
+    # Story 1.3: Annotation QML components (Windows only)
+    Gui/Annotation/AnnotationCanvas.qml
+    Gui/Annotation/AnnotationToolbar.qml
 )
 
 install(TARGETS spectacle ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

@@ -4,12 +4,16 @@
  *  Selection Overlay Window
  *  Story 1.1 - Full-Screen Capture Overlay
  *  Story 1.2 - Selection Targeting + Refinement
+ *  Story 1.3 - Pre-Capture Annotation Tools
  *  Story 1.8 - Window Movement Detection & Overlay Persistence
  */
 
 #include "SelectionOverlay.h"
 #include "SelectionGeometry.h"
 #include "Platforms/Windows/WGCCapture.h"
+#include "Gui/Annotation/AnnotationListModel.h"
+#include "Gui/Annotation/Annotation.h"
+#include "Gui/Annotation/AnnotationTool.h"
 
 #ifdef Q_OS_WIN
 #include "Platforms/Windows/WindowDetector.h"
@@ -38,6 +42,11 @@ SelectionOverlay::SelectionOverlay(QObject *parent)
     , m_eventMonitor(nullptr)
     , m_targetingEnabled(true)  // Enable click-to-select targeting by default
 #endif
+    // Story 1.3: Initialize annotation system
+    , m_annotationModel(new AnnotationListModel(this))
+    , m_currentTool(static_cast<int>(AnnotationTool::None))
+    , m_currentColor(QColor("#FF0000"))  // Default: red
+    , m_currentStrokeWidth(2)  // Default: 2px
 {
 #ifdef Q_OS_WIN
     // Initialize Windows-specific targeting components
@@ -193,6 +202,107 @@ void SelectionOverlay::setAutosavePath(const QString &path)
     if (m_autosavePath != path) {
         m_autosavePath = path;
         Q_EMIT autosaveChanged();
+    }
+}
+
+// Story 1.3: Annotation property setters
+
+void SelectionOverlay::setCurrentTool(int tool)
+{
+    if (m_currentTool != tool) {
+        m_currentTool = tool;
+        qDebug("Current annotation tool changed to: %d", tool);
+        Q_EMIT currentToolChanged();
+    }
+}
+
+void SelectionOverlay::setCurrentColor(const QColor &color)
+{
+    if (m_currentColor != color) {
+        m_currentColor = color;
+        qDebug("Current annotation color changed to: %s", qUtf8Printable(color.name()));
+        Q_EMIT currentColorChanged();
+    }
+}
+
+void SelectionOverlay::setCurrentStrokeWidth(int width)
+{
+    if (m_currentStrokeWidth != width) {
+        m_currentStrokeWidth = width;
+        qDebug("Current annotation stroke width changed to: %d", width);
+        Q_EMIT currentStrokeWidthChanged();
+    }
+}
+
+// Story 1.3: Annotation creation methods
+
+void SelectionOverlay::addFreeDrawAnnotation(const QVector<QPoint> &points)
+{
+    if (points.isEmpty()) {
+        qWarning("Cannot add free draw annotation: no points");
+        return;
+    }
+
+    Annotation annotation(AnnotationTool::FreeDraw);
+    annotation.setColor(m_currentColor);
+    annotation.setStrokeWidth(m_currentStrokeWidth);
+    annotation.setPoints(points);
+
+    // Calculate bounding box from points
+    QRect bbox;
+    for (const QPoint &pt : points) {
+        if (bbox.isNull()) {
+            bbox = QRect(pt, QSize(1, 1));
+        } else {
+            bbox = bbox.united(QRect(pt, QSize(1, 1)));
+        }
+    }
+    annotation.setBoundingBox(bbox);
+
+    m_annotationModel->addAnnotation(annotation);
+    qDebug("Added free draw annotation with %d points, bbox: %dx%d at (%d, %d)",
+           points.count(), bbox.width(), bbox.height(), bbox.x(), bbox.y());
+}
+
+void SelectionOverlay::addBoxAnnotation(const QRect &bounds)
+{
+    if (bounds.isEmpty()) {
+        qWarning("Cannot add box annotation: empty bounds");
+        return;
+    }
+
+    Annotation annotation(AnnotationTool::Box);
+    annotation.setColor(m_currentColor);
+    annotation.setStrokeWidth(m_currentStrokeWidth);
+    annotation.setBoundingBox(bounds);
+
+    m_annotationModel->addAnnotation(annotation);
+    qDebug("Added box annotation: %dx%d at (%d, %d)",
+           bounds.width(), bounds.height(), bounds.x(), bounds.y());
+}
+
+void SelectionOverlay::addCircleAnnotation(const QRect &bounds)
+{
+    if (bounds.isEmpty()) {
+        qWarning("Cannot add circle annotation: empty bounds");
+        return;
+    }
+
+    Annotation annotation(AnnotationTool::Circle);
+    annotation.setColor(m_currentColor);
+    annotation.setStrokeWidth(m_currentStrokeWidth);
+    annotation.setBoundingBox(bounds);
+
+    m_annotationModel->addAnnotation(annotation);
+    qDebug("Added circle annotation: %dx%d at (%d, %d)",
+           bounds.width(), bounds.height(), bounds.x(), bounds.y());
+}
+
+void SelectionOverlay::undoLastAnnotation()
+{
+    if (m_annotationModel) {
+        m_annotationModel->undoLast();
+        qDebug("Undo last annotation");
     }
 }
 

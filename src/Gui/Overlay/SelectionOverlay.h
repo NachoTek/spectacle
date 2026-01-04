@@ -4,6 +4,7 @@
  *  Selection Overlay Window
  *  Story 1.1 - Full-Screen Capture Overlay
  *  Story 1.2 - Selection Targeting + Refinement
+ *  Story 1.3 - Pre-Capture Annotation Tools
  *  Story 1.8 - Window Movement Detection & Overlay Persistence
  */
 
@@ -13,6 +14,7 @@
 #include <QQuickView>
 #include <QRect>
 #include <QImage>
+#include <QColor>
 
 #ifdef Q_OS_WIN
 // Forward declarations for Windows-specific targeting
@@ -20,6 +22,10 @@ class WindowDetector;
 class SelectionSnapper;
 class WindowEventMonitor;
 #endif
+
+// Forward declarations for annotation system (Story 1.3)
+class AnnotationListModel;
+class AnnotationTool;
 
 /**
  * @brief Full-screen overlay for screen capture selection
@@ -35,6 +41,12 @@ class SelectionOverlay : public QObject
     Q_PROPERTY(bool resizeHandlesVisible READ resizeHandlesVisible NOTIFY selectionChanged)
     Q_PROPERTY(bool autosaveEnabled READ autosaveEnabled WRITE setAutosaveEnabled NOTIFY autosaveChanged)
     Q_PROPERTY(QString autosavePath READ autosavePath WRITE setAutosavePath NOTIFY autosaveChanged)
+
+    // Story 1.3: Annotation properties
+    Q_PROPERTY(AnnotationListModel* annotationModel READ annotationModel CONSTANT)
+    Q_PROPERTY(int currentTool READ currentTool WRITE setCurrentTool NOTIFY currentToolChanged)
+    Q_PROPERTY(QColor currentColor READ currentColor WRITE setCurrentColor NOTIFY currentColorChanged)
+    Q_PROPERTY(int currentStrokeWidth READ currentStrokeWidth WRITE setCurrentStrokeWidth NOTIFY currentStrokeWidthChanged)
 
 public:
     explicit SelectionOverlay(QObject *parent = nullptr);
@@ -91,11 +103,31 @@ public:
     QString autosavePath() const { return m_autosavePath; }
     void setAutosavePath(const QString &path);
 
+    // Story 1.3: Annotation properties
+    AnnotationListModel* annotationModel() const { return m_annotationModel; }
+    int currentTool() const { return m_currentTool; }
+    void setCurrentTool(int tool);
+    QColor currentColor() const { return m_currentColor; }
+    void setCurrentColor(const QColor &color);
+    int currentStrokeWidth() const { return m_currentStrokeWidth; }
+    void setCurrentStrokeWidth(int width);
+
+    // Story 1.3: Annotation operations
+    void addFreeDrawAnnotation(const QVector<QPoint> &points);
+    void addBoxAnnotation(const QRect &bounds);
+    void addCircleAnnotation(const QRect &bounds);
+    void undoLastAnnotation();
+
 Q_SIGNALS:
     void selectionChanged();
     void autosaveChanged();
     void captureConfirmed(const QImage &image);
     void captureAborted();
+
+    // Story 1.3: Annotation change signals
+    void currentToolChanged();
+    void currentColorChanged();
+    void currentStrokeWidthChanged();
 
 public Q_SLOTS:
     /**
@@ -159,5 +191,11 @@ private:
     WindowEventMonitor *m_eventMonitor;  // Story 1.8 - Window movement monitoring
     bool m_targetingEnabled;  // Is click-to-select targeting active
 #endif
+
+    // Story 1.3: Annotation state
+    AnnotationListModel *m_annotationModel;
+    int m_currentTool;
+    QColor m_currentColor;
+    int m_currentStrokeWidth;
 };
 
