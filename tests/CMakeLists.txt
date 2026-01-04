@@ -137,6 +137,7 @@ SET(ANNOTATION_TEST_SRCS
     Unit/AnnotationTest.cpp
     ../src/Gui/Annotation/Annotation.cpp
     ../src/Gui/Annotation/AnnotationListModel.cpp
+    ../src/Gui/Annotation/AnnotationRenderer.cpp
 )
 
 ecm_add_test(

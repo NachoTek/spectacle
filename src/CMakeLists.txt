@@ -65,6 +65,7 @@ target_sources(spectacle PRIVATE
     # Story 1.3: Annotation system (Windows only)
     Gui/Annotation/Annotation.cpp
     Gui/Annotation/AnnotationListModel.cpp
+    Gui/Annotation/AnnotationRenderer.cpp
 )
 
 if(XCB_FOUND)

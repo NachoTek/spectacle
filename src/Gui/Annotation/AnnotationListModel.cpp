@@ -43,6 +43,8 @@ QVariant AnnotationListModel::data(const QModelIndex &index, int role) const
         return annotation.boundingBox();
     case UuidRole:
         return annotation.uuid().toString();
+    case SelectedRole:  // Task 7: Selection state
+        return annotation.isSelected();
     default:
         return QVariant();
     }
@@ -57,6 +59,7 @@ QHash<int, QByteArray> AnnotationListModel::roleNames() const
     roles[PointsRole] = "points";
     roles[BoundingBoxRole] = "boundingBox";
     roles[UuidRole] = "uuid";
+    roles[SelectedRole] = "selected";  // Task 7: Selection state
     return roles;
 }
 
@@ -103,6 +106,94 @@ Annotation AnnotationListModel::getAnnotation(int index) const
         return Annotation(AnnotationTool::None);
     }
     return m_annotations.at(index);
+}
+
+// Task 7: Selection and editing methods
+
+void AnnotationListModel::selectAnnotation(const QUuid &uuid)
+{
+    for (int i = 0; i < m_annotations.count(); ++i) {
+        if (m_annotations.at(i).uuid() == uuid) {
+            // Deselect previous
+            if (!m_selectedUuid.isNull()) {
+                for (int j = 0; j < m_annotations.count(); ++j) {
+                    if (m_annotations[j].uuid() == m_selectedUuid) {
+                        m_annotations[j].setSelected(false);
+                        QModelIndex idx = index(j);
+                        Q_EMIT dataChanged(idx, idx, {SelectedRole});
+                        break;
+                    }
+                }
+            }
+
+            // Select new
+            m_annotations[i].setSelected(true);
+            m_selectedUuid = uuid;
+            QModelIndex idx = index(i);
+            Q_EMIT dataChanged(idx, idx, {SelectedRole});
+            qDebug("Selected annotation: %s", qUtf8Printable(uuid.toString()));
+            return;
+        }
+    }
+}
+
+void AnnotationListModel::clearSelection()
+{
+    if (m_selectedUuid.isNull()) {
+        return;
+    }
+
+    for (int i = 0; i < m_annotations.count(); ++i) {
+        if (m_annotations.at(i).isSelected()) {
+            m_annotations[i].setSelected(false);
+            QModelIndex idx = index(i);
+            Q_EMIT dataChanged(idx, idx, {SelectedRole});
+        }
+    }
+
+    m_selectedUuid = QUuid();
+    qDebug("Cleared annotation selection");
+}
+
+void AnnotationListModel::deleteSelected()
+{
+    if (m_selectedUuid.isNull()) {
+        qWarning("No annotation selected for deletion");
+        return;
+    }
+
+    for (int i = 0; i < m_annotations.count(); ++i) {
+        if (m_annotations.at(i).uuid() == m_selectedUuid) {
+            beginRemoveRows(QModelIndex(), i, i);
+            m_annotations.removeAt(i);
+            endRemoveRows();
+            m_selectedUuid = QUuid();
+            qDebug("Deleted selected annotation at index %d", i);
+            return;
+        }
+    }
+
+    qWarning("Selected annotation not found for deletion");
+}
+
+void AnnotationListModel::moveSelected(int dx, int dy)
+{
+    if (m_selectedUuid.isNull()) {
+        qWarning("No annotation selected for moving");
+        return;
+    }
+
+    for (int i = 0; i < m_annotations.count(); ++i) {
+        if (m_annotations.at(i).uuid() == m_selectedUuid) {
+            m_annotations[i].translate(dx, dy);
+            QModelIndex idx = index(i);
+            Q_EMIT dataChanged(idx, idx, {PointsRole, BoundingBoxRole});
+            qDebug("Moved selected annotation by (%d, %d)", dx, dy);
+            return;
+        }
+    }
+
+    qWarning("Selected annotation not found for moving");
 }
 
 #endif // Q_OS_WIN

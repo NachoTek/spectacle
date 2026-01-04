@@ -32,7 +32,8 @@ public:
         StrokeWidthRole,
         PointsRole,
         BoundingBoxRole,
-        UuidRole
+        UuidRole,
+        SelectedRole  // Task 7: Selection state for editing
     };
 
     explicit AnnotationListModel(QObject *parent = nullptr);
@@ -78,8 +79,34 @@ public:
      */
     Q_INVOKABLE Annotation getAnnotation(int index) const;
 
+    /**
+     * @brief Select annotation by UUID
+     */
+    Q_INVOKABLE void selectAnnotation(const QUuid &uuid);
+
+    /**
+     * @brief Deselect all annotations
+     */
+    Q_INVOKABLE void clearSelection();
+
+    /**
+     * @brief Get selected annotation UUID
+     */
+    Q_INVOKABLE QUuid selectedAnnotation() const { return m_selectedUuid; }
+
+    /**
+     * @brief Delete selected annotation
+     */
+    Q_INVOKABLE void deleteSelected();
+
+    /**
+     * @brief Move selected annotation by delta
+     */
+    Q_INVOKABLE void moveSelected(int dx, int dy);
+
 private:
     QVector<Annotation> m_annotations;
+    QUuid m_selectedUuid;  // Task 7: Track selected annotation
 };
 
 #endif // Q_OS_WIN

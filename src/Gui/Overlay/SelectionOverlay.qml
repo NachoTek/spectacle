@@ -34,6 +34,18 @@ Rectangle {
                                _overlay.selectionRect.width,
                                _overlay.selectionRect.height)
         visible: _overlay.annotationModel !== null
+
+        // Task 7: Handle annotation selection
+        onAnnotationClicked: function(uuid) {
+            console.log("Annotation clicked:", uuid)
+            // Use Qt.invoked to call the C++ method with QUuid
+            _overlay.annotationModel.selectAnnotation(uuid)
+        }
+
+        onAnnotationMoved: function(dx, dy) {
+            console.log("Annotation moved:", dx, dy)
+            _overlay.annotationModel.moveSelected(dx, dy)
+        }
     }
 
     // Target highlighter (Story 1.2 - Window Targeting)
@@ -195,6 +207,33 @@ Rectangle {
 
                 onClicked: {
                     _overlay.undoLastAnnotation()
+                }
+            }
+
+            // Task 7: Delete selected button
+            Controls.Button {
+                id: deleteSelectedBtn
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "🗑️ Delete Selected"
+                visible: _overlay.annotationModel &&
+                         _overlay.annotationModel.selectedAnnotation.toString() !== "{00000000-0000-0000-0000-000000000000}"
+
+                background: Rectangle {
+                    color: deleteSelectedBtn.pressed ? "#990000" :
+                           deleteSelectedBtn.hovered ? "#CC0000" : "#AA0000"
+                    radius: 4
+                }
+
+                contentItem: Text {
+                    text: deleteSelectedBtn.text
+                    color: "white"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                onClicked: {
+                    console.log("Delete selected clicked")
+                    _overlay.annotationModel.deleteSelected()
                 }
             }
         }

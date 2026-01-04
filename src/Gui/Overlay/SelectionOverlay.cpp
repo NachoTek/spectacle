@@ -14,6 +14,7 @@
 #include "Gui/Annotation/AnnotationListModel.h"
 #include "Gui/Annotation/Annotation.h"
 #include "Gui/Annotation/AnnotationTool.h"
+#include "Gui/Annotation/AnnotationRenderer.h"  // Task 8: Render annotations
 
 #ifdef Q_OS_WIN
 #include "Platforms/Windows/WindowDetector.h"
@@ -382,6 +383,12 @@ void SelectionOverlay::enterPressed()
 
     // Crop to selection region
     image = image.copy(m_selectionRect);
+
+    // Task 8: Render annotations onto the captured image
+    if (m_annotationModel && m_annotationModel->rowCount() > 0) {
+        qDebug("Rendering %d annotations onto captured image", m_annotationModel->rowCount());
+        image = AnnotationRenderer::renderFromModel(image, m_annotationModel);
+    }
 
     // Commit to clipboard
     QClipboard *clipboard = QApplication::clipboard();

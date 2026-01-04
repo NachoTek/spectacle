@@ -97,6 +97,21 @@ public:
      */
     QUuid uuid() const { return m_uuid; }
 
+    /**
+     * @brief Check if annotation is selected
+     */
+    bool isSelected() const { return m_selected; }
+
+    /**
+     * @brief Set selection state
+     */
+    void setSelected(bool selected) { m_selected = selected; }
+
+    /**
+     * @brief Translate annotation by delta (for moving)
+     */
+    void translate(int dx, int dy);
+
 private:
     AnnotationTool m_type;
     QColor m_color;
@@ -104,6 +119,7 @@ private:
     QVector<QPoint> m_points;
     QRect m_boundingBox;
     QUuid m_uuid;
+    bool m_selected;  // Task 7: Selection state for editing
 };
 
 #endif // Q_OS_WIN
