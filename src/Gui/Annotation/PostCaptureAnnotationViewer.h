@@ -1,0 +1,118 @@
+/*
+ *  SPDX-License-Identifier: GPL-2.0-only OR LGPL-2.0-only OR LicenseRef-KDE-Accepted-GPL
+ *
+ *  Post-Capture Annotation Viewer
+ *  Story 1.4 - Post-Capture Annotation View
+ *  Task 1: Create PostCaptureAnnotationViewer window
+ */
+
+#ifndef POSTCAPTUREANNOTATIONVIEWER_H
+#define POSTCAPTUREANNOTATIONVIEWER_H
+
+#include "AnnotationListModel.h"
+
+#include <QImage>
+#include <QObject>
+#include <QWidget>
+
+#ifdef Q_OS_WIN
+
+class QClipboard;
+class QTimer;
+
+/**
+ * @brief Post-capture annotation viewer window
+ *
+ * Provides a window for editing annotations after capture.
+ * Displays the captured image with annotation overlay and provides
+ * Save As and Copy to Clipboard functionality.
+ */
+class PostCaptureAnnotationViewer : public QWidget
+{
+    Q_OBJECT
+
+public:
+    /**
+     * @brief Construct viewer with captured image and annotations
+     * @param capturedImage The screenshot to annotate
+     * @param annotations Initial annotations (will be copied)
+     * @param parent Parent widget
+     */
+    explicit PostCaptureAnnotationViewer(const QImage &capturedImage,
+                                         AnnotationListModel *annotations,
+                                         QWidget *parent = nullptr);
+
+    /**
+     * @brief Destructor
+     */
+    ~PostCaptureAnnotationViewer() override;
+
+    /**
+     * @brief Get the annotation model
+     */
+    AnnotationListModel* annotationModel() const { return m_annotationModel; }
+
+    /**
+     * @brief Get current rendered image (with annotations)
+     */
+    QImage renderedImage() const;
+
+Q_SIGNALS:
+    /**
+     * @brief Emitted when image is saved
+     */
+    void imageSaved(const QString &path);
+
+public Q_SLOTS:
+    /**
+     * @brief Save As dialog
+     */
+    void saveAs();
+
+    /**
+     * @brief Copy to clipboard
+     */
+    void copyToClipboard();
+
+    /**
+     * @brief Update clipboard with rendered image
+     */
+    void updateClipboard();
+
+private Q_SLOTS:
+    /**
+     * @brief Handle annotation model changes
+     */
+    void onAnnotationsChanged();
+
+    /**
+     * @brief Handle close request
+     */
+    void closeEvent(QCloseEvent *event) override;
+
+    /**
+     * @brief Handle key press events (shortcuts)
+     */
+    void keyPressEvent(QKeyEvent *event) override;
+
+private:
+    /**
+     * @brief Setup UI components
+     */
+    void setupUi();
+
+    /**
+     * @brief Render image with annotations
+     */
+    QImage renderWithAnnotations() const;
+
+    QImage m_capturedImage;
+    AnnotationListModel *m_annotationModel;
+    QClipboard *m_clipboard;
+    QTimer *m_clipboardUpdateTimer;
+    bool m_hasUnsavedChanges;
+};
+
+#endif // Q_OS_WIN
+
+#endif // POSTCAPTUREANNOTATIONVIEWER_H

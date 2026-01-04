@@ -129,6 +129,9 @@ Q_SIGNALS:
     void currentColorChanged();
     void currentStrokeWidthChanged();
 
+    // Story 1.4: Signal to open post-capture view
+    void openPostCaptureView(const QImage &image, AnnotationListModel *annotations);
+
 public Q_SLOTS:
     /**
      * @brief Handle mouse press (start selection)

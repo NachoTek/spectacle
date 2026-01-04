@@ -384,22 +384,40 @@ void SelectionOverlay::enterPressed()
     // Crop to selection region
     image = image.copy(m_selectionRect);
 
-    // Task 8: Render annotations onto the captured image
+    // Story 1.4: Open post-capture annotation view
+    // Pass the raw image and annotation model (will be deep copied in viewer)
+    qDebug("Opening post-capture annotation view with %d annotations",
+           m_annotationModel ? m_annotationModel->rowCount() : 0);
+    Q_EMIT openPostCaptureView(image, m_annotationModel);
+
+    // Task 8: Render annotations onto the captured image for clipboard/autosave
     if (m_annotationModel && m_annotationModel->rowCount() > 0) {
         qDebug("Rendering %d annotations onto captured image", m_annotationModel->rowCount());
-        image = AnnotationRenderer::renderFromModel(image, m_annotationModel);
-    }
+        QImage renderedImage = AnnotationRenderer::renderFromModel(image, m_annotationModel);
 
-    // Commit to clipboard
-    QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setImage(image);
+        // Commit to clipboard
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setImage(renderedImage);
 
-    qDebug("Image committed to clipboard: %dx%d", image.width(), image.height());
+        // Autosave if enabled
+        if (m_autosaveEnabled) {
+            renderedImage.save(m_autosavePath);
+            qDebug("Rendered image saved to: %s", qUtf8Printable(m_autosavePath));
+        }
 
-    // Autosave if enabled
-    if (m_autosaveEnabled) {
-        image.save(m_autosavePath);
-        qDebug("Image saved to: %s", qUtf8Printable(m_autosavePath));
+        qDebug("Rendered image committed to clipboard: %dx%d", renderedImage.width(), renderedImage.height());
+    } else {
+        // No annotations - use original image
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setImage(image);
+
+        // Autosave if enabled
+        if (m_autosaveEnabled) {
+            image.save(m_autosavePath);
+            qDebug("Image saved to: %s", qUtf8Printable(m_autosavePath));
+        }
+
+        qDebug("Image committed to clipboard: %dx%d", image.width(), image.height());
     }
 
     Q_EMIT captureConfirmed(image);

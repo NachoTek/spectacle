@@ -1,6 +1,6 @@
 # Story 1.4: Post-Capture Annotation View
 
-Status: ready-for-dev
+Status: in-progress
 
 ## Story
 
@@ -24,49 +24,49 @@ so that I can refine or add markup before saving or sharing.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create PostCaptureAnnotationViewer window (AC: #1)
-  - [ ] Subtask 1.1: Create PostCaptureAnnotationViewer C++ class (QWidget-based window)
+- [x] Task 1: Create PostCaptureAnnotationViewer window (AC: #1)
+  - [x] Subtask 1.1: Create PostCaptureAnnotationViewer C++ class (QWidget-based window)
   - [ ] Subtask 1.2: Create PostCaptureAnnotationViewer.qml for UI layout
-  - [ ] Subtask 1.3: Add image display area (centered, scrollable if large)
-  - [ ] Subtask 1.4: Add action buttons: Save As, Copy to Clipboard, Close
+  - [x] Subtask 1.3: Add image display area (centered, scrollable if large)
+  - [x] Subtask 1.4: Add action buttons: Save As, Copy to Clipboard, Close
 
 - [ ] Task 2: Reuse annotation components from Story 1.3 (AC: #1)
   - [ ] Subtask 2.1: Load AnnotationCanvas component into post-capture view
   - [ ] Subtask 2.2: Load AnnotationToolbar component into post-capture view
-  - [ ] Subtask 2.3: Reuse AnnotationListModel for managing post-capture annotations
+  - [x] Subtask 2.3: Reuse AnnotationListModel for managing post-capture annotations
   - [ ] Subtask 2.4: Ensure same annotation tools work (free draw, arrow, box, circle)
   - [ ] Subtask 2.5: Ensure same color and stroke size picker works
 
-- [ ] Task 3: Transfer annotations from pre-capture (AC: #1, #2)
-  - [ ] Subtask 3.1: Pass annotation model from SelectionOverlay to PostCaptureAnnotationViewer
-  - [ ] Subtask 3.2: Copy annotation data to post-capture model (not reference, to allow independent editing)
-  - [ ] Subtask 3.3: Render transferred annotations onto captured image in viewer
+- [x] Task 3: Transfer annotations from pre-capture (AC: #1, #2)
+  - [x] Subtask 3.1: Pass annotation model from SelectionOverlay to PostCaptureAnnotationViewer
+  - [x] Subtask 3.2: Copy annotation data to post-capture model (not reference, to allow independent editing)
+  - [x] Subtask 3.3: Render transferred annotations onto captured image in viewer
 
-- [ ] Task 4: Implement live clipboard updates (AC: #2)
-  - [ ] Subtask 4.1: Add signal handler for annotation changes in PostCaptureAnnotationViewer
-  - [ ] Subtask 4.2: Create QImage rendering function that composites image + annotations
-  - [ ] Subtask 4.3: Update clipboard on each annotation add/modify/delete
-  - [ ] Subtask 4.4: Ensure clipboard updates don't block UI (debounce if needed)
+- [x] Task 4: Implement live clipboard updates (AC: #2)
+  - [x] Subtask 4.1: Add signal handler for annotation changes in PostCaptureAnnotationViewer
+  - [x] Subtask 4.2: Create QImage rendering function that composites image + annotations
+  - [x] Subtask 4.3: Update clipboard on each annotation add/modify/delete
+  - [x] Subtask 4.4: Ensure clipboard updates don't block UI (debounce if needed)
 
-- [ ] Task 5: Implement Save As functionality (AC: #3)
-  - [ ] Subtask 5.1: Create save dialog with format selection (PNG, JPEG, etc.)
-  - [ ] Subtask 5.2: Compose final image with annotations rendered (reuse AnnotationRenderer)
-  - [ ] Subtask 5.3: Save to selected location with proper file extension
-  - [ ] Subtask 5.4: Show inline success/error message (no toasts)
+- [x] Task 5: Implement Save As functionality (AC: #3)
+  - [x] Subtask 5.1: Create save dialog with format selection (PNG, JPEG, etc.)
+  - [x] Subtask 5.2: Compose final image with annotations rendered (reuse AnnotationRenderer)
+  - [x] Subtask 5.3: Save to selected location with proper file extension
+  - [x] Subtask 5.4: Show inline success/error message (no toasts)
 
-- [ ] Task 6: Implement Copy to Clipboard button (AC: #3)
-  - [ ] Subtask 6.1: Add "Copy to Clipboard" button in toolbar
-  - [ ] Subtask 6.2: Compose final image with annotations (reuse rendering function)
-  - [ ] Subtask 6.3: Update clipboard with annotated image
-  - [ ] Subtask 6.4: Show inline confirmation "Copied to clipboard"
+- [x] Task 6: Implement Copy to Clipboard button (AC: #3)
+  - [x] Subtask 6.1: Add "Copy to Clipboard" button in toolbar
+  - [x] Subtask 6.2: Compose final image with annotations (reuse rendering function)
+  - [x] Subtask 6.3: Update clipboard with annotated image
+  - [x] Subtask 6.4: Show inline confirmation "Copied to clipboard"
 
-- [ ] Task 7: Keyboard shortcuts and UX polish (AC: All)
-  - [ ] Subtask 7.1: Support Ctrl+S to trigger Save As
-  - [ ] Subtask 7.2: Support Ctrl+C to copy to clipboard
-  - [ ] Subtask 7.3: Support Ctrl+Z to undo last annotation
-  - [ ] Subtask 7.4: Support Delete key to remove selected annotation
-  - [ ] Subtask 7.5: Support Escape to close viewer (with confirmation if unsaved changes)
-  - [ ] Subtask 7.6: Ensure window is resizable and centered on screen
+- [x] Task 7: Keyboard shortcuts and UX polish (AC: All)
+  - [x] Subtask 7.1: Support Ctrl+S to trigger Save As
+  - [x] Subtask 7.2: Support Ctrl+C to copy to clipboard
+  - [x] Subtask 7.3: Support Ctrl+Z to undo last annotation
+  - [x] Subtask 7.4: Support Delete key to remove selected annotation
+  - [x] Subtask 7.5: Support Escape to close viewer (with confirmation if unsaved changes)
+  - [x] Subtask 7.6: Ensure window is resizable and centered on screen
 
 - [ ] Task 8: Testing and verification (All AC)
   - [ ] Subtask 8.1: Test post-capture view opens after Enter on overlay
@@ -278,3 +278,13 @@ None yet - story not started.
 ### Completion Notes List
 
 ### File List
+
+**New Files Created:**
+- `src/Gui/Annotation/PostCaptureAnnotationViewer.h`
+- `src/Gui/Annotation/PostCaptureAnnotationViewer.cpp`
+- `tests/Unit/PostCaptureAnnotationViewerTest.cpp`
+
+**Files Modified:**
+- `src/Gui/Overlay/SelectionOverlay.h` (added openPostCaptureView signal)
+- `src/Gui/Overlay/SelectionOverlay.cpp` (emit signal in enterPressed)
+- `CMakeLists.windows-tests.txt` (added PostCaptureAnnotationViewer test)

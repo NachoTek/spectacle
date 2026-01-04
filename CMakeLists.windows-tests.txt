@@ -88,9 +88,24 @@ add_executable(annotation_test
 )
 target_link_libraries(annotation_test Qt6::Core Qt6::Gui Qt6::Test)
 
+# Post-Capture Annotation Viewer Test (Story 1.4)
+set(POSTCAPTURE_SOURCES
+    ${SOURCE_DIR}/src/Gui/Annotation/Annotation.cpp
+    ${SOURCE_DIR}/src/Gui/Annotation/AnnotationListModel.cpp
+    ${SOURCE_DIR}/src/Gui/Annotation/AnnotationRenderer.cpp
+    ${SOURCE_DIR}/src/Gui/Annotation/PostCaptureAnnotationViewer.cpp
+)
+
+add_executable(postcapture_test
+    ${SOURCE_DIR}/tests/Unit/PostCaptureAnnotationViewerTest.cpp
+    ${POSTCAPTURE_SOURCES}
+)
+target_link_libraries(postcapture_test Qt6::Core Qt6::Gui Qt6::Test)
+
 # Add tests to CTest
 add_test(NAME HelperProcessTest COMMAND helper_process_test)
 add_test(NAME NamedPipeServerTest COMMAND named_pipe_server_test)
 add_test(NAME SelectionGeometryTest COMMAND selection_geometry_test)
 add_test(NAME WindowEventMonitorTest COMMAND window_event_monitor_test)
 add_test(NAME AnnotationTest COMMAND annotation_test)
+add_test(NAME PostCaptureAnnotationViewerTest COMMAND postcapture_test)
