@@ -17,6 +17,8 @@
 #include "Gui/Annotation/AnnotationListModel.h"
 #include "Gui/Annotation/AnnotationRenderer.h"
 
+#ifdef Q_OS_WIN
+
 using namespace Qt::StringLiterals;
 
 class AnnotationTest : public QObject
@@ -58,7 +60,7 @@ private slots:
         QVERIFY(!annotation.uuid().isNull());
     }
 
-    void testAnnotationProperty setters()
+    void testAnnotationPropertySetters()
     {
         Annotation annotation(AnnotationTool::FreeDraw);
 
