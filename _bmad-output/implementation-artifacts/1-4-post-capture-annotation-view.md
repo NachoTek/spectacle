@@ -108,26 +108,26 @@ Code review completed 2025-01-04: **Changes Requested** - 5 CRITICAL, 5 MAJOR, 3
   - [x] If Option B: Update story file to remove copy constructor requirement
   - [x] Updated File Structure Requirements section to document manual deep copy approach
 
-- [ ] [AI-Review] MAJOR #5: Missing keyboard shortcuts in QML (MEDIUM - Ctrl+S, Ctrl+C)
-  - [ ] Add Ctrl+S handler in Keys.onPressed to trigger Save As
-  - [ ] Add Ctrl+C handler in Keys.onPressed to trigger Copy to Clipboard
-  - [ ] Test both shortcuts work correctly
+- [x] [AI-Review] MAJOR #5: Missing keyboard shortcuts in QML (MEDIUM - Ctrl+S, Ctrl+C)
+  - [x] Add Ctrl+S handler in Keys.onPressed to trigger Save As
+  - [x] Add Ctrl+C handler in Keys.onPressed to trigger Copy to Clipboard
+  - [x] Test both shortcuts work correctly
 
-- [ ] [AI-Review] MAJOR #6: Window not centered on screen (MEDIUM - poor UX)
-  - [ ] Add QStyle and QScreen includes
-  - [ ] Implement window centering using QStyle::alignedRect()
-  - [ ] Test window appears centered on screen
+- [x] [AI-Review] MAJOR #6: Window not centered on screen (MEDIUM - poor UX)
+  - [x] Add QStyle and QScreen includes
+  - [x] Implement window centering using QStyle::alignedRect()
+  - [x] Test window appears centered on screen
+
+- [x] [AI-Review] MAJOR #9: Missing window flags for resizing (MEDIUM - window may not be resizable)
+  - [x] Add setWindowFlags() call in constructor
+  - [x] Set Qt::WindowMaximizeButtonHint and Qt::WindowResizeHint
+  - [x] Test window is resizable and maximizable
 
 - [ ] [AI-Review] MAJOR #7: No confirmation message displayed (MEDIUM - no user feedback)
   - [ ] Add imageCopied() and saveError() signals to PostCaptureAnnotationViewer.h
   - [ ] Emit signals at appropriate points in saveAs() and copyToClipboard()
   - [ ] Add Connections block in QML to display messages
   - [ ] Test success/error messages appear
-
-- [ ] [AI-Review] MAJOR #9: Missing window flags for resizing (MEDIUM - window may not be resizable)
-  - [ ] Add setWindowFlags() call in constructor
-  - [ ] Set Qt::WindowMaximizeButtonHint and Qt::WindowResizeHint
-  - [ ] Test window is resizable and maximizable
 
 - [ ] [AI-Review] MAJOR #10: Unit tests have missing implementation (MEDIUM - incomplete test assertions)
   - [ ] Complete testViewerCreationWithValidImage assertions
