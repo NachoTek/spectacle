@@ -26,16 +26,16 @@ so that I can refine or add markup before saving or sharing.
 
 - [x] Task 1: Create PostCaptureAnnotationViewer window (AC: #1)
   - [x] Subtask 1.1: Create PostCaptureAnnotationViewer C++ class (QWidget-based window)
-  - [ ] Subtask 1.2: Create PostCaptureAnnotationViewer.qml for UI layout
+  - [x] Subtask 1.2: Create PostCaptureAnnotationViewer.qml for UI layout
   - [x] Subtask 1.3: Add image display area (centered, scrollable if large)
   - [x] Subtask 1.4: Add action buttons: Save As, Copy to Clipboard, Close
 
-- [ ] Task 2: Reuse annotation components from Story 1.3 (AC: #1)
-  - [ ] Subtask 2.1: Load AnnotationCanvas component into post-capture view
-  - [ ] Subtask 2.2: Load AnnotationToolbar component into post-capture view
+- [x] Task 2: Reuse annotation components from Story 1.3 (AC: #1)
+  - [x] Subtask 2.1: Load AnnotationCanvas component into post-capture view
+  - [x] Subtask 2.2: Load AnnotationToolbar component into post-capture view
   - [x] Subtask 2.3: Reuse AnnotationListModel for managing post-capture annotations
-  - [ ] Subtask 2.4: Ensure same annotation tools work (free draw, arrow, box, circle)
-  - [ ] Subtask 2.5: Ensure same color and stroke size picker works
+  - [x] Subtask 2.4: Ensure same annotation tools work (free draw, arrow, box, circle)
+  - [x] Subtask 2.5: Ensure same color and stroke size picker works
 
 - [x] Task 3: Transfer annotations from pre-capture (AC: #1, #2)
   - [x] Subtask 3.1: Pass annotation model from SelectionOverlay to PostCaptureAnnotationViewer
@@ -282,6 +282,7 @@ None yet - story not started.
 **New Files Created:**
 - `src/Gui/Annotation/PostCaptureAnnotationViewer.h`
 - `src/Gui/Annotation/PostCaptureAnnotationViewer.cpp`
+- `src/Gui/Annotation/PostCaptureAnnotationViewer.qml`
 - `tests/Unit/PostCaptureAnnotationViewerTest.cpp`
 
 **Files Modified:**

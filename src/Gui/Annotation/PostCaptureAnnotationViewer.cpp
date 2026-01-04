@@ -15,15 +15,12 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QCloseEvent>
+#include <QColor>
 #include <QFileDialog>
-#include <QHBoxLayout>
 #include <QImage>
-#include <QKeySequence>
-#include <QKeyEvent>
-#include <QPushButton>
+#include <QQuickItem>
 #include <QTimer>
-#include <QVBoxLayout>
-#include <QWidget>
+#include <QUrl>
 
 #include <QLoggingCategory>
 
@@ -32,7 +29,7 @@ Q_LOGGING_CATEGORY(LOG_POSTCAPTURE, "spectacle.postcapture")
 PostCaptureAnnotationViewer::PostCaptureAnnotationViewer(const QImage &capturedImage,
                                                            AnnotationListModel *annotations,
                                                            QWidget *parent)
-    : QWidget(parent)
+    : QQuickView(parent)
     , m_capturedImage(capturedImage)
     , m_annotationModel(nullptr)
     , m_clipboard(QApplication::clipboard())
@@ -49,8 +46,8 @@ PostCaptureAnnotationViewer::PostCaptureAnnotationViewer(const QImage &capturedI
         }
     }
 
-    // Setup UI
-    setupUi();
+    // Setup QML engine and context
+    setupQml();
 
     // Task 4.3: Update clipboard on annotation changes
     connect(m_annotationModel, &QAbstractListModel::rowsInserted,
@@ -66,12 +63,10 @@ PostCaptureAnnotationViewer::PostCaptureAnnotationViewer(const QImage &capturedI
     connect(m_clipboardUpdateTimer, &QTimer::timeout,
             this, &PostCaptureAnnotationViewer::updateClipboard);
 
-    // Center window on screen
+    // Window properties
     setWindowTitle(tr("Annotation Editor - Spectacle"));
     resize(800, 600);
-
-    // Task 7.6: Ensure window is resizable
-    setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint | Qt::WindowResizeHint);
+    setResizeMode(QQuickView::SizeRootObjectToView);
 
     qCDebug(LOG_POSTCAPTURE) << "PostCaptureAnnotationViewer created with"
                              << m_annotationModel->rowCount() << "annotations";
@@ -82,45 +77,36 @@ PostCaptureAnnotationViewer::~PostCaptureAnnotationViewer()
     delete m_annotationModel;
 }
 
-void PostCaptureAnnotationViewer::setupUi()
+void PostCaptureAnnotationViewer::setupQml()
 {
-    // Task 1.3, 1.4: Main layout with image display and action buttons
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    // Set QML source
+    setSource(QUrl(QStringLiteral("qrc:/qml/PostCaptureAnnotationViewer.qml")));
 
-    // Toolbar with buttons
-    QHBoxLayout *toolbarLayout = new QHBoxLayout();
+    // Expose C++ objects to QML
+    rootContext()->setContextProperty("viewerWindow", this);
+    rootContext()->setContextProperty("annotationModel", m_annotationModel);
 
-    // Task 1.4: Save As button
-    QPushButton *saveButton = new QPushButton(tr("Save As..."), this);
-    saveButton->setShortcut(QKeySequence::Save); // Task 7.1: Ctrl+S
-    connect(saveButton, &QPushButton::clicked,
-            this, &PostCaptureAnnotationViewer::saveAs);
-    toolbarLayout->addWidget(saveButton);
+    // Register QImage for use in QML
+    qmlRegisterType<AnnotationListModel>("Spectacle", 1, 0, "AnnotationListModel");
+}
 
-    // Task 6.1: Copy to Clipboard button
-    QPushButton *copyButton = new QPushButton(tr("Copy to Clipboard"), this);
-    copyButton->setShortcut(QKeySequence::Copy); // Task 7.2: Ctrl+C
-    connect(copyButton, &QPushButton::clicked,
-            this, &PostCaptureAnnotationViewer::copyToClipboard);
-    toolbarLayout->addWidget(copyButton);
+void PostCaptureAnnotationViewer::setCurrentTool(int tool)
+{
+    // QML can call this to set the current annotation tool
+    Q_UNUSED(tool);
+    // Implementation would update tool state
+}
 
-    // Close button
-    QPushButton *closeButton = new QPushButton(tr("Close"), this);
-    connect(closeButton, &QPushButton::clicked,
-            this, &QWidget::close);
-    toolbarLayout->addWidget(closeButton);
+void PostCaptureAnnotationViewer::setCurrentColor(const QColor &color)
+{
+    // QML can call this to set the current color
+    Q_UNUSED(color);
+}
 
-    toolbarLayout->addStretch();
-    mainLayout->addLayout(toolbarLayout);
-
-    // Task 1.3: Image display area
-    // Note: Full QML integration will load AnnotationCanvas and AnnotationToolbar
-    // For now, we use a basic widget placeholder
-    QWidget *imageDisplay = new QWidget(this);
-    imageDisplay->setMinimumSize(400, 300);
-    mainLayout->addWidget(imageDisplay, 1);
-
-    setLayout(mainLayout);
+void PostCaptureAnnotationViewer::setCurrentStrokeWidth(int width)
+{
+    // QML can call this to set the current stroke width
+    Q_UNUSED(width);
 }
 
 QImage PostCaptureAnnotationViewer::renderedImage() const
@@ -203,41 +189,6 @@ void PostCaptureAnnotationViewer::onAnnotationsChanged()
     // Task 4.3, 4.4: Trigger debounced clipboard update
     m_hasUnsavedChanges = true;
     m_clipboardUpdateTimer->start();
-}
-
-void PostCaptureAnnotationViewer::closeEvent(QCloseEvent *event)
-{
-    // Task 7.5: Support Escape to close (with confirmation if unsaved)
-    if (m_hasUnsavedChanges) {
-        // In a full implementation, show confirmation dialog
-        // For now, just close
-        qCDebug(LOG_POSTCAPTURE) << "Closing viewer with unsaved changes";
-    }
-
-    event->accept();
-}
-
-void PostCaptureAnnotationViewer::keyPressEvent(QKeyEvent *event)
-{
-    // Task 7.3: Support Ctrl+Z to undo last annotation
-    if (event->matches(QKeySequence::Undo)) {
-        m_annotationModel->undoLast();
-        return;
-    }
-
-    // Task 7.4: Support Delete key to remove selected annotation
-    if (event->key() == Qt::Key_Delete) {
-        m_annotationModel->deleteSelected();
-        return;
-    }
-
-    // Task 7.5: Support Escape to close
-    if (event->key() == Qt::Key_Escape) {
-        close();
-        return;
-    }
-
-    QWidget::keyPressEvent(event);
 }
 
 #endif // Q_OS_WIN

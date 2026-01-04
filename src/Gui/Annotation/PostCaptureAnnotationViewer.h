@@ -13,7 +13,7 @@
 
 #include <QImage>
 #include <QObject>
-#include <QWidget>
+#include <QQuickView>
 
 #ifdef Q_OS_WIN
 
@@ -23,13 +23,15 @@ class QTimer;
 /**
  * @brief Post-capture annotation viewer window
  *
- * Provides a window for editing annotations after capture.
+ * Provides a Qt Quick window for editing annotations after capture.
  * Displays the captured image with annotation overlay and provides
  * Save As and Copy to Clipboard functionality.
  */
-class PostCaptureAnnotationViewer : public QWidget
+class PostCaptureAnnotationViewer : public QQuickView
 {
     Q_OBJECT
+    Q_PROPERTY(QImage capturedImage READ capturedImage CONSTANT)
+    Q_PROPERTY(AnnotationListModel* annotationModel READ annotationModel CONSTANT)
 
 public:
     /**
@@ -48,9 +50,29 @@ public:
     ~PostCaptureAnnotationViewer() override;
 
     /**
+     * @brief Get the captured image
+     */
+    QImage capturedImage() const { return m_capturedImage; }
+
+    /**
      * @brief Get the annotation model
      */
     AnnotationListModel* annotationModel() const { return m_annotationModel; }
+
+    /**
+     * @brief Set current annotation tool
+     */
+    Q_INVOKABLE void setCurrentTool(int tool);
+
+    /**
+     * @brief Set current annotation color
+     */
+    Q_INVOKABLE void setCurrentColor(const QColor &color);
+
+    /**
+     * @brief Set current stroke width
+     */
+    Q_INVOKABLE void setCurrentStrokeWidth(int width);
 
     /**
      * @brief Get current rendered image (with annotations)
@@ -85,21 +107,11 @@ private Q_SLOTS:
      */
     void onAnnotationsChanged();
 
-    /**
-     * @brief Handle close request
-     */
-    void closeEvent(QCloseEvent *event) override;
-
-    /**
-     * @brief Handle key press events (shortcuts)
-     */
-    void keyPressEvent(QKeyEvent *event) override;
-
 private:
     /**
-     * @brief Setup UI components
+     * @brief Setup QML context and engine
      */
-    void setupUi();
+    void setupQml();
 
     /**
      * @brief Render image with annotations
