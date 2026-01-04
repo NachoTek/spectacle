@@ -167,15 +167,17 @@ void PostCaptureAnnotationViewer::saveAs()
     QImage finalImage = renderWithAnnotations();
 
     if (finalImage.isNull()) {
-        // Task 5.4: Show inline error message
+        // MAJOR #7: Emit error signal for rendering failure
         qCWarning(LOG_POSTCAPTURE) << "Failed to render image for saving";
+        Q_EMIT saveError(tr("Failed to render image"));
         return;
     }
 
     // Task 5.3: Save to selected location
     if (!finalImage.save(fileName)) {
-        // Task 5.4: Show inline error message
+        // MAJOR #7: Emit error signal for save failure
         qCWarning(LOG_POSTCAPTURE) << "Failed to save image to" << fileName;
+        Q_EMIT saveError(tr("Failed to save image to ") + fileName);
         return;
     }
 
@@ -183,6 +185,7 @@ void PostCaptureAnnotationViewer::saveAs()
     m_hasUnsavedChanges = false;
 
     Q_EMIT imageSaved(fileName);
+    Q_EMIT imageCopied();  // Reuse signal for generic success notification
 }
 
 void PostCaptureAnnotationViewer::copyToClipboard()
@@ -198,8 +201,9 @@ void PostCaptureAnnotationViewer::copyToClipboard()
     // Task 6.3: Update clipboard with annotated image
     m_clipboard->setImage(finalImage);
 
-    // Task 6.4: Show inline confirmation
+    // Task 6.4: Show inline confirmation (MAJOR #7)
     qCDebug(LOG_POSTCAPTURE) << "Image copied to clipboard";
+    Q_EMIT imageCopied();
 }
 
 void PostCaptureAnnotationViewer::updateClipboard()

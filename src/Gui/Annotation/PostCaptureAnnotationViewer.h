@@ -97,6 +97,16 @@ Q_SIGNALS:
      */
     void imageSaved(const QString &path);
 
+    /**
+     * @brief Emitted when image is copied to clipboard (MAJOR #7)
+     */
+    void imageCopied();
+
+    /**
+     * @brief Emitted when save operation fails (MAJOR #7)
+     */
+    void saveError(const QString &message);
+
 public Q_SLOTS:
     /**
      * @brief Save As dialog

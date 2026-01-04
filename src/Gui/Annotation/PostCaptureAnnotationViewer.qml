@@ -157,6 +157,20 @@ ApplicationWindow {
         }
     }
 
+    // MAJOR #7: Connections to display success/error messages
+    Connections {
+        target: viewerWindow
+        function onImageSaved(path) {
+            messageBox.showMessage(qsTr("Image saved: ") + path)
+        }
+        function onImageCopied() {
+            messageBox.showMessage(qsTr("Copied to clipboard"))
+        }
+        function onSaveError(message) {
+            messageBox.showMessage(qsTr("Save failed: ") + message)
+        }
+    }
+
     // Keyboard shortcuts
     focus: true
     Keys.onPressed: function(event) {
