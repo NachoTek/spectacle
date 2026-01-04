@@ -15,6 +15,7 @@
 #include <QImage>
 #include <QObject>
 #include <QQuickView>
+#include <QColor>  // MINOR #12: Add missing include
 
 #ifdef Q_OS_WIN
 
@@ -107,6 +108,21 @@ Q_SIGNALS:
      */
     void saveError(const QString &message);
 
+    /**
+     * @brief Emitted when current tool changes (MINOR #13)
+     */
+    void currentToolChanged();
+
+    /**
+     * @brief Emitted when current color changes (MINOR #13)
+     */
+    void currentColorChanged();
+
+    /**
+     * @brief Emitted when current stroke width changes (MINOR #13)
+     */
+    void currentStrokeWidthChanged();
+
 public Q_SLOTS:
     /**
      * @brief Save As dialog
@@ -146,6 +162,11 @@ private:
     QTimer *m_clipboardUpdateTimer;
     bool m_hasUnsavedChanges;
     CapturedImageProvider *m_imageProvider;  // CRITICAL #3: Image provider for QML
+
+    // MINOR #13: Tool selection state
+    int m_currentTool;
+    QColor m_currentColor;
+    int m_currentStrokeWidth;
 };
 
 #endif // Q_OS_WIN

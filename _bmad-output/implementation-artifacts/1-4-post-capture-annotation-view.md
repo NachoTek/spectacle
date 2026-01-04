@@ -25,7 +25,7 @@ so that I can refine or add markup before saving or sharing.
 ## Tasks / Subtasks
 
 - [x] Task 1: Create PostCaptureAnnotationViewer window (AC: #1)
-  - [x] Subtask 1.1: Create PostCaptureAnnotationViewer C++ class (QWidget-based window)
+  - [x] Subtask 1.1: Create PostCaptureAnnotationViewer C++ class (QQuickView-based window)
   - [x] Subtask 1.2: Create PostCaptureAnnotationViewer.qml for UI layout
   - [x] Subtask 1.3: Add image display area (centered, scrollable if large)
   - [x] Subtask 1.4: Add action buttons: Save As, Copy to Clipboard, Close
@@ -135,16 +135,16 @@ Code review completed 2025-01-04: **Changes Requested** - 5 CRITICAL, 5 MAJOR, 3
   - [x] Add testPostCaptureWorkflow() integration test
   - [x] Run all tests and verify they pass
 
-- [ ] [AI-Review] MINOR #11: Incorrect window type in comment (LOW - documentation)
-  - [ ] Update class documentation from "QWidget-based" to "Qt Quick (QQuickView)"
+- [x] [AI-Review] MINOR #11: Incorrect window type in comment (LOW - documentation)
+  - [x] Update class documentation from "QWidget-based" to "Qt Quick (QQuickView)"
 
-- [ ] [AI-Review] MINOR #12: Missing #include for QColor (LOW - compilation warning)
-  - [ ] Add #include <QColor> to PostCaptureAnnotationViewer.h
+- [x] [AI-Review] MINOR #12: Missing #include for QColor (LOW - compilation warning)
+  - [x] Add #include <QColor> to PostCaptureAnnotationViewer.h
 
-- [ ] [AI-Review] MINOR #13: Unused parameters in setter methods (LOW - incomplete implementation)
-  - [ ] Add m_currentTool, m_currentColor, m_currentStrokeWidth member variables
-  - [ ] Implement setCurrentTool(), setCurrentColor(), setCurrentStrokeWidth()
-  - [ ] Add corresponding change signals
+- [x] [AI-Review] MINOR #13: Unused parameters in setter methods (LOW - incomplete implementation)
+  - [x] Add m_currentTool, m_currentColor, m_currentStrokeWidth member variables
+  - [x] Implement setCurrentTool(), setCurrentColor(), setCurrentStrokeWidth()
+  - [x] Add corresponding change signals
 
 ## Dev Notes
 

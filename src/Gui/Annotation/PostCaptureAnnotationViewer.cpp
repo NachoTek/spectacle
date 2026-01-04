@@ -41,6 +41,9 @@ PostCaptureAnnotationViewer::PostCaptureAnnotationViewer(const QImage &capturedI
     , m_clipboardUpdateTimer(new QTimer(this))
     , m_hasUnsavedChanges(false)
     , m_imageProvider(nullptr)  // CRITICAL #3: Will be initialized in setupQml
+    , m_currentTool(static_cast<int>(AnnotationTool::None))  // MINOR #13: Initialize tool state
+    , m_currentColor(QColor("#FF0000"))  // MINOR #13: Default red color
+    , m_currentStrokeWidth(2)  // MINOR #13: Default 2px stroke
 {
     // Task 3.2: Create deep copy of annotation model (not reference)
     m_annotationModel = new AnnotationListModel(this);
@@ -116,21 +119,32 @@ void PostCaptureAnnotationViewer::setupQml()
 
 void PostCaptureAnnotationViewer::setCurrentTool(int tool)
 {
-    // QML can call this to set the current annotation tool
-    Q_UNUSED(tool);
-    // Implementation would update tool state
+    // MINOR #13: Set the current annotation tool
+    if (m_currentTool != tool) {
+        m_currentTool = tool;
+        qCDebug(LOG_POSTCAPTURE) << "Current tool changed to:" << tool;
+        Q_EMIT currentToolChanged();
+    }
 }
 
 void PostCaptureAnnotationViewer::setCurrentColor(const QColor &color)
 {
-    // QML can call this to set the current color
-    Q_UNUSED(color);
+    // MINOR #13: Set the current annotation color
+    if (m_currentColor != color) {
+        m_currentColor = color;
+        qCDebug(LOG_POSTCAPTURE) << "Current color changed to:" << color.name();
+        Q_EMIT currentColorChanged();
+    }
 }
 
 void PostCaptureAnnotationViewer::setCurrentStrokeWidth(int width)
 {
-    // QML can call this to set the current stroke width
-    Q_UNUSED(width);
+    // MINOR #13: Set the current stroke width
+    if (m_currentStrokeWidth != width) {
+        m_currentStrokeWidth = width;
+        qCDebug(LOG_POSTCAPTURE) << "Current stroke width changed to:" << width;
+        Q_EMIT currentStrokeWidthChanged();
+    }
 }
 
 QImage PostCaptureAnnotationViewer::renderedImage() const
