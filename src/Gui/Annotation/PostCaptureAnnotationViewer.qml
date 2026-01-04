@@ -171,10 +171,10 @@ ApplicationWindow {
             event.accepted = true
             annotationModel.deleteSelected()
         }
-        // Task 7.5: Support Escape to close
+        // Task 7.5: Support Escape to close (CRITICAL #2 fix - uses requestClose for confirmation)
         else if (event.key === Qt.Key_Escape) {
             event.accepted = true
-            viewerWindow.close()
+            viewerWindow.requestClose()
         }
     }
 }

@@ -79,6 +79,17 @@ public:
      */
     QImage renderedImage() const;
 
+    /**
+     * @brief Request window close (triggers confirmation if unsaved changes)
+     */
+    Q_INVOKABLE void requestClose();
+
+protected:
+    /**
+     * @brief Handle close event with unsaved changes confirmation (Story 1.4 - CRITICAL #2 fix)
+     */
+    void closeEvent(QCloseEvent *event) override;
+
 Q_SIGNALS:
     /**
      * @brief Emitted when image is saved

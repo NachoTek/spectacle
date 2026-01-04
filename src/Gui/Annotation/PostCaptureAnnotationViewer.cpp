@@ -19,6 +19,7 @@
 #include <QFileDialog>
 #include <QImage>
 #include <QQuickItem>
+#include <QMessageBox>
 #include <QTimer>
 #include <QUrl>
 
@@ -189,6 +190,34 @@ void PostCaptureAnnotationViewer::onAnnotationsChanged()
     // Task 4.3, 4.4: Trigger debounced clipboard update
     m_hasUnsavedChanges = true;
     m_clipboardUpdateTimer->start();
+}
+
+// Story 1.4: CRITICAL #2 Fix - Unsaved changes warning
+void PostCaptureAnnotationViewer::requestClose()
+{
+    close();  // This will trigger closeEvent with confirmation logic
+}
+
+void PostCaptureAnnotationViewer::closeEvent(QCloseEvent *event)
+{
+    // Task 7.5: Show confirmation if unsaved changes
+    if (m_hasUnsavedChanges) {
+        QMessageBox::StandardButton response = QMessageBox::question(
+            this,
+            tr("Unsaved Changes"),
+            tr("You have unsaved annotations. Close anyway?"),
+            QMessageBox::Yes | QMessageBox::No,
+            QMessageBox::No
+        );
+
+        if (response == QMessageBox::No) {
+            event->ignore();
+            return;
+        }
+    }
+
+    event->accept();
+    QQuickView::closeEvent(event);
 }
 
 #endif // Q_OS_WIN
