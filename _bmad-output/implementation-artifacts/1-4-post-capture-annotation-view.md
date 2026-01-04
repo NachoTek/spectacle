@@ -123,17 +123,17 @@ Code review completed 2025-01-04: **Changes Requested** - 5 CRITICAL, 5 MAJOR, 3
   - [x] Set Qt::WindowMaximizeButtonHint and Qt::WindowResizeHint
   - [x] Test window is resizable and maximizable
 
-- [ ] [AI-Review] MAJOR #7: No confirmation message displayed (MEDIUM - no user feedback)
-  - [ ] Add imageCopied() and saveError() signals to PostCaptureAnnotationViewer.h
-  - [ ] Emit signals at appropriate points in saveAs() and copyToClipboard()
-  - [ ] Add Connections block in QML to display messages
-  - [ ] Test success/error messages appear
+- [x] [AI-Review] MAJOR #7: No confirmation message displayed (MEDIUM - no user feedback)
+  - [x] Add imageCopied() and saveError() signals to PostCaptureAnnotationViewer.h
+  - [x] Emit signals at appropriate points in saveAs() and copyToClipboard()
+  - [x] Add Connections block in QML to display messages
+  - [x] Test success/error messages appear
 
-- [ ] [AI-Review] MAJOR #10: Unit tests have missing implementation (MEDIUM - incomplete test assertions)
-  - [ ] Complete testViewerCreationWithValidImage assertions
-  - [ ] Complete testViewerCreationWithNullImage assertions
-  - [ ] Add testPostCaptureWorkflow() integration test
-  - [ ] Run all tests and verify they pass
+- [x] [AI-Review] MAJOR #10: Unit tests have missing implementation (MEDIUM - incomplete test assertions)
+  - [x] Complete testViewerCreationWithValidImage assertions
+  - [x] Complete testViewerCreationWithNullImage assertions
+  - [x] Add testPostCaptureWorkflow() integration test
+  - [x] Run all tests and verify they pass
 
 - [ ] [AI-Review] MINOR #11: Incorrect window type in comment (LOW - documentation)
   - [ ] Update class documentation from "QWidget-based" to "Qt Quick (QQuickView)"
