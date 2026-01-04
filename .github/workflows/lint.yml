@@ -46,10 +46,10 @@ jobs:
 
         New-Item -ItemType Directory -Force -Path build-lint
 
-        cd build-lint
-
         # Use minimal CMakeLists for analysis (no KDE dependencies)
-        Copy-Item CMakeLists.windows-tests.txt CMakeLists.txt
+        Copy-Item CMakeLists.windows-tests.txt build-lint\CMakeLists.txt
+
+        cd build-lint
 
         cmake . `
           -DCMAKE_BUILD_TYPE=Debug `
@@ -74,13 +74,16 @@ jobs:
           "src/Platforms/Windows/NamedPipeServer.cpp",
           "src/Platforms/Windows/IPCProtocol.cpp",
           "src/Gui/Overlay/SelectionGeometry.cpp",
-          "src/Gui/Overlay/SelectionOverlay.cpp"
+          "src/Gui/Overlay/SelectionOverlay.cpp",
+          "src/Gui/Annotation/Annotation.cpp",
+          "src/Gui/Annotation/AnnotationListModel.cpp",
+          "src/Gui/Annotation/AnnotationRenderer.cpp"
         )
 
         $errors = 0
 
         foreach ($source in $sources) {
-          if (Test-Path $source)) {
+          if (Test-Path $source) {
             Write-Host "Analyzing $source..."
             clang-tidy $source `
               --config-file=.clang-tidy `
