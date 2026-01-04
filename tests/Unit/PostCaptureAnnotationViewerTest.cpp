@@ -58,7 +58,9 @@ void PostCaptureAnnotationViewerTest::testViewerCreationWithValidImage()
     PostCaptureAnnotationViewer *viewer = new PostCaptureAnnotationViewer(m_testImage, model);
 
     QVERIFY(viewer != nullptr);
-    // Verify viewer has the image set
+    // MAJOR #10: Verify viewer has the image set
+    QVERIFY(!viewer->capturedImage().isNull());
+    QCOMPARE(viewer->capturedImage().size(), m_testImage.size());
 
     delete viewer;
 }
@@ -71,7 +73,8 @@ void PostCaptureAnnotationViewerTest::testViewerCreationWithNullImage()
     PostCaptureAnnotationViewer *viewer = new PostCaptureAnnotationViewer(nullImage, model);
 
     QVERIFY(viewer != nullptr);
-    // Viewer should handle null image gracefully
+    // MAJOR #10: Verify viewer handles null image gracefully
+    QVERIFY(viewer->capturedImage().isNull());
 
     delete viewer;
 }
@@ -147,6 +150,42 @@ void PostCaptureAnnotationViewerTest::testClipboardUpdatesOnAnnotationChange()
     // Verify clipboard has image
     QClipboard *clipboard = QApplication::clipboard();
     QVERIFY(!clipboard->image().isNull());
+
+    delete viewer;
+}
+
+// MAJOR #10: Integration test for full overlay → post-capture workflow
+void PostCaptureAnnotationViewerTest::testPostCaptureWorkflow()
+{
+    // Create overlay with annotations (simulating pre-capture state)
+    AnnotationListModel *overlayModel = new AnnotationListModel(this);
+
+    // Add test annotation (simulating user drew box on overlay)
+    Annotation annotation(AnnotationTool::Box);
+    annotation.setColor(Qt::red);
+    annotation.setStrokeWidth(2);
+    annotation.setBoundingBox(QRect(10, 10, 50, 50));
+    overlayModel->addAnnotation(annotation);
+
+    // Create post-capture viewer (simulates overlay transition via signal)
+    PostCaptureAnnotationViewer *viewer = new PostCaptureAnnotationViewer(m_testImage, overlayModel);
+
+    // Verify annotations transferred (but model is independent)
+    QVERIFY(viewer->annotationModel() != overlayModel);
+    QCOMPARE(viewer->annotationModel()->rowCount(), 1);
+
+    // Verify independence: modifying original doesn't affect copy
+    Annotation annotation2(AnnotationTool::Circle);
+    annotation2.setBoundingBox(QRect(20, 20, 30, 30));
+    overlayModel->addAnnotation(annotation2);
+
+    // Viewer should still have only 1 annotation (independent copy)
+    QCOMPARE(viewer->annotationModel()->rowCount(), 1);
+
+    // Verify rendering works
+    QImage rendered = viewer->renderedImage();
+    QVERIFY(!rendered.isNull());
+    QCOMPARE(rendered.size(), m_testImage.size());
 
     delete viewer;
 }
