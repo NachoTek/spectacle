@@ -78,6 +78,74 @@ so that I can refine or add markup before saving or sharing.
   - [ ] Subtask 8.7: Unit tests for PostCaptureAnnotationViewer logic
   - [ ] Subtask 8.8: Integration test for full overlay → post-capture workflow
 
+### Review Follow-ups (AI)
+
+Code review completed 2025-01-04: **Changes Requested** - 5 CRITICAL, 5 MAJOR, 3 MINOR issues found.
+
+**Priority Order:**
+- Phase 1 (Blockers): CRITICAL #1, #3, #2
+- Phase 2 (Core Functionality): CRITICAL #4, MAJOR #5-9
+- Phase 3 (Polish): MAJOR #10, MINOR #11-13
+
+- [ ] [AI-Review] CRITICAL #1: Missing SpectacleCore integration (HIGH - viewer won't open)
+  - [ ] Add openPostCaptureAnnotationViewer() slot to SpectacleCore.h/cpp
+  - [ ] Connect SelectionOverlay::openPostCaptureView signal to slot
+  - [ ] Test that post-capture viewer opens when Enter pressed
+
+- [ ] [AI-Review] CRITICAL #2: Missing unsaved changes warning (HIGH - violates AC requirement)
+  - [ ] Add closeEvent handler with confirmation dialog
+  - [ ] Update QML Escape handler to call requestClose() instead of direct close
+  - [ ] Add QMessageBox include and implement confirmation logic
+
+- [ ] [AI-Review] CRITICAL #3: QML image source will fail (HIGH - image won't display)
+  - [ ] Create CapturedImageProvider.h/cpp (QQuickImageProvider)
+  - [ ] Register image provider in PostCaptureAnnotationViewer constructor
+  - [ ] Update QML Image source to use image provider URL
+  - [ ] Update CMakeLists to include new image provider files
+
+- [ ] [AI-Review] CRITICAL #4: Missing AnnotationListModel deep copy method (HIGH - violates requirement)
+  - [ ] CHOICE: Add copy constructor to AnnotationListModel OR update story requirements
+  - [ ] If Option A: Implement copy constructor and update PostCaptureAnnotationViewer
+  - [ ] If Option B: Update story file to remove copy constructor requirement
+
+- [ ] [AI-Review] MAJOR #5: Missing keyboard shortcuts in QML (MEDIUM - Ctrl+S, Ctrl+C)
+  - [ ] Add Ctrl+S handler in Keys.onPressed to trigger Save As
+  - [ ] Add Ctrl+C handler in Keys.onPressed to trigger Copy to Clipboard
+  - [ ] Test both shortcuts work correctly
+
+- [ ] [AI-Review] MAJOR #6: Window not centered on screen (MEDIUM - poor UX)
+  - [ ] Add QStyle and QScreen includes
+  - [ ] Implement window centering using QStyle::alignedRect()
+  - [ ] Test window appears centered on screen
+
+- [ ] [AI-Review] MAJOR #7: No confirmation message displayed (MEDIUM - no user feedback)
+  - [ ] Add imageCopied() and saveError() signals to PostCaptureAnnotationViewer.h
+  - [ ] Emit signals at appropriate points in saveAs() and copyToClipboard()
+  - [ ] Add Connections block in QML to display messages
+  - [ ] Test success/error messages appear
+
+- [ ] [AI-Review] MAJOR #9: Missing window flags for resizing (MEDIUM - window may not be resizable)
+  - [ ] Add setWindowFlags() call in constructor
+  - [ ] Set Qt::WindowMaximizeButtonHint and Qt::WindowResizeHint
+  - [ ] Test window is resizable and maximizable
+
+- [ ] [AI-Review] MAJOR #10: Unit tests have missing implementation (MEDIUM - incomplete test assertions)
+  - [ ] Complete testViewerCreationWithValidImage assertions
+  - [ ] Complete testViewerCreationWithNullImage assertions
+  - [ ] Add testPostCaptureWorkflow() integration test
+  - [ ] Run all tests and verify they pass
+
+- [ ] [AI-Review] MINOR #11: Incorrect window type in comment (LOW - documentation)
+  - [ ] Update class documentation from "QWidget-based" to "Qt Quick (QQuickView)"
+
+- [ ] [AI-Review] MINOR #12: Missing #include for QColor (LOW - compilation warning)
+  - [ ] Add #include <QColor> to PostCaptureAnnotationViewer.h
+
+- [ ] [AI-Review] MINOR #13: Unused parameters in setter methods (LOW - incomplete implementation)
+  - [ ] Add m_currentTool, m_currentColor, m_currentStrokeWidth member variables
+  - [ ] Implement setCurrentTool(), setCurrentColor(), setCurrentStrokeWidth()
+  - [ ] Add corresponding change signals
+
 ## Dev Notes
 
 ### Epic Context

@@ -178,6 +178,11 @@ public Q_SLOTS:
      * @brief Refresh targets (Story 1.8 - re-detect windows)
      */
     void refreshTargets();
+
+    /**
+     * @brief Open post-capture annotation viewer (Story 1.4 - CRITICAL #1 fix)
+     */
+    void openPostCaptureAnnotationViewer(const QImage &image, AnnotationListModel *annotations);
 #endif
 
 private:

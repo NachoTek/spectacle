@@ -15,6 +15,7 @@
 #include "Gui/Annotation/Annotation.h"
 #include "Gui/Annotation/AnnotationTool.h"
 #include "Gui/Annotation/AnnotationRenderer.h"  // Task 8: Render annotations
+#include "Gui/Annotation/PostCaptureAnnotationViewer.h"  // Story 1.4: Post-capture annotation viewer
 
 #ifdef Q_OS_WIN
 #include "Platforms/Windows/WindowDetector.h"
@@ -103,6 +104,10 @@ SelectionOverlay::SelectionOverlay(QObject *parent)
             this, [](const QString &error) {
         qWarning("WindowEventMonitor error: %s", qUtf8Printable(error));
     });
+
+    // Story 1.4: Connect post-capture view signal to slot
+    connect(this, &SelectionOverlay::openPostCaptureView,
+            this, &SelectionOverlay::openPostCaptureAnnotationViewer);
 #endif
 }
 
@@ -561,5 +566,26 @@ void SelectionOverlay::refreshTargets()
 #endif
 }
 
+// Story 1.4: CRITICAL #1 Fix - Open post-capture annotation viewer
+void SelectionOverlay::openPostCaptureAnnotationViewer(const QImage &image, AnnotationListModel *annotations)
+{
+#ifdef Q_OS_WIN
+    if (image.isNull()) {
+        qWarning("Cannot open post-capture viewer: image is null");
+        return;
+    }
+
+    qDebug("Opening post-capture annotation viewer with %d annotations",
+           annotations ? annotations->rowCount() : 0);
+
+    // Create and show post-capture viewer
+    PostCaptureAnnotationViewer *viewer = new PostCaptureAnnotationViewer(image, annotations, nullptr);
+    viewer->show();
+    viewer->raise();
+    viewer->activateWindow();
+
+    qDebug("Post-capture annotation viewer opened successfully");
+#endif
+}
 
 #include "moc_SelectionOverlay.cpp"
