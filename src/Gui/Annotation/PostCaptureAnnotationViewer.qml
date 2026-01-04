@@ -165,6 +165,16 @@ ApplicationWindow {
             event.accepted = true
             annotationModel.undoLast()
         }
+        // MAJOR #5: Support Ctrl+S to trigger Save As
+        else if ((event.modifiers & Qt.ControlModifier) && event.key === Qt.Key_S) {
+            event.accepted = true
+            viewerWindow.saveAs()
+        }
+        // MAJOR #5: Support Ctrl+C to copy to clipboard
+        else if ((event.modifiers & Qt.ControlModifier) && event.key === Qt.Key_C) {
+            event.accepted = true
+            viewerWindow.copyToClipboard()
+        }
         // Task 7.4: Support Delete key
         else if (event.key === Qt.Key_Delete) {
             event.accepted = true

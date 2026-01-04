@@ -18,9 +18,12 @@
 #include <QCloseEvent>
 #include <QColor>
 #include <QFileDialog>
+#include <QGuiApplication>
 #include <QImage>
 #include <QQuickItem>
 #include <QMessageBox>
+#include <QScreen>
+#include <QStyle>
 #include <QTimer>
 #include <QUrl>
 
@@ -70,6 +73,15 @@ PostCaptureAnnotationViewer::PostCaptureAnnotationViewer(const QImage &capturedI
     setWindowTitle(tr("Annotation Editor - Spectacle"));
     resize(800, 600);
     setResizeMode(QQuickView::SizeRootObjectToView);
+
+    // MAJOR #9: Ensure window is resizable
+    setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint | Qt::WindowResizeHint);
+
+    // MAJOR #6: Center window on screen
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect screenGeometry = screen->availableGeometry();
+    QRect centeredRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), screenGeometry);
+    setGeometry(centeredRect);
 
     qCDebug(LOG_POSTCAPTURE) << "PostCaptureAnnotationViewer created with"
                              << m_annotationModel->rowCount() << "annotations";
