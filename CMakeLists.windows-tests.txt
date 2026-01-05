@@ -9,8 +9,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-# Find Qt 6 - add Gui component for QScreen
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Test)
+# Find Qt 6 - add Gui component for QScreen, plus Qml, Quick, and Widgets for post-capture viewer
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick Widgets Test)
 
 # Include Qt test framework
 enable_testing()
@@ -101,7 +101,7 @@ add_executable(postcapture_test
     ${SOURCE_DIR}/tests/Unit/PostCaptureAnnotationViewerTest.cpp
     ${POSTCAPTURE_SOURCES}
 )
-target_link_libraries(postcapture_test Qt6::Core Qt6::Gui Qt6::Test)
+target_link_libraries(postcapture_test Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::Widgets Qt6::Test)
 
 # Add tests to CTest
 add_test(NAME HelperProcessTest COMMAND helper_process_test)

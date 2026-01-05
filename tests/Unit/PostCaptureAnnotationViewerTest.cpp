@@ -32,8 +32,8 @@ private slots:
     // Task 4: Clipboard update tests
     void testClipboardUpdatesOnAnnotationChange();
 
-    // Task 5: Save As tests
-    void testSaveAsTriggersFileSave();
+    // MAJOR #10: Integration test for full overlay → post-capture workflow
+    void testPostCaptureWorkflow();
 
 private:
     QImage m_testImage;
@@ -60,7 +60,7 @@ void PostCaptureAnnotationViewerTest::testViewerCreationWithValidImage()
     QVERIFY(viewer != nullptr);
     // MAJOR #10: Verify viewer has the image set
     QVERIFY(!viewer->capturedImage().isNull());
-    QCOMPARE(viewer->capturedImage().size(), m_testImage.size());
+    QVERIFY(viewer->capturedImage().size() == m_testImage.size());
 
     delete viewer;
 }
@@ -185,7 +185,8 @@ void PostCaptureAnnotationViewerTest::testPostCaptureWorkflow()
     // Verify rendering works
     QImage rendered = viewer->renderedImage();
     QVERIFY(!rendered.isNull());
-    QCOMPARE(rendered.size(), m_testImage.size());
+    QVERIFY(rendered.size().width() == m_testImage.size().width());
+    QVERIFY(rendered.size().height() == m_testImage.size().height());
 
     delete viewer;
 }

@@ -40,11 +40,11 @@ public:
      * @brief Construct viewer with captured image and annotations
      * @param capturedImage The screenshot to annotate
      * @param annotations Initial annotations (will be copied)
-     * @param parent Parent widget
+     * @param parent Parent window (QWindow, not QWidget)
      */
     explicit PostCaptureAnnotationViewer(const QImage &capturedImage,
                                          AnnotationListModel *annotations,
-                                         QWidget *parent = nullptr);
+                                         QWindow *parent = nullptr);
 
     /**
      * @brief Destructor

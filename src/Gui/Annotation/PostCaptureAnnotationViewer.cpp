@@ -18,6 +18,7 @@
 #include <QCloseEvent>
 #include <QColor>
 #include <QFileDialog>
+#include <QQmlContext>  // For QQmlContext methods in setupQml()
 #include <QGuiApplication>
 #include <QImage>
 #include <QQuickItem>
@@ -33,7 +34,7 @@ Q_LOGGING_CATEGORY(LOG_POSTCAPTURE, "spectacle.postcapture")
 
 PostCaptureAnnotationViewer::PostCaptureAnnotationViewer(const QImage &capturedImage,
                                                            AnnotationListModel *annotations,
-                                                           QWidget *parent)
+                                                           QWindow *parent)
     : QQuickView(parent)
     , m_capturedImage(capturedImage)
     , m_annotationModel(nullptr)
@@ -73,12 +74,12 @@ PostCaptureAnnotationViewer::PostCaptureAnnotationViewer(const QImage &capturedI
             this, &PostCaptureAnnotationViewer::updateClipboard);
 
     // Window properties
-    setWindowTitle(tr("Annotation Editor - Spectacle"));
+    setTitle(tr("Annotation Editor - Spectacle"));
     resize(800, 600);
     setResizeMode(QQuickView::SizeRootObjectToView);
 
-    // MAJOR #9: Ensure window is resizable
-    setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint | Qt::WindowResizeHint);
+    // MAJOR #9: QQuickView windows are resizable by default
+    // No need to set window flags like with QWidget
 
     // MAJOR #6: Center window on screen
     QScreen *screen = QGuiApplication::primaryScreen();
@@ -168,7 +169,7 @@ void PostCaptureAnnotationViewer::saveAs()
 {
     // Task 5.1: Create save dialog with format selection
     QString filter = tr("PNG Images (*.png);;JPEG Images (*.jpg *.jpeg);;All Files (*)");
-    QString fileName = QFileDialog::getSaveFileName(this,
+    QString fileName = QFileDialog::getSaveFileName(nullptr,
                                                      tr("Save Annotated Image"),
                                                      QString(),
                                                      filter);
@@ -244,7 +245,7 @@ void PostCaptureAnnotationViewer::closeEvent(QCloseEvent *event)
     // Task 7.5: Show confirmation if unsaved changes
     if (m_hasUnsavedChanges) {
         QMessageBox::StandardButton response = QMessageBox::question(
-            this,
+            nullptr,
             tr("Unsaved Changes"),
             tr("You have unsaved annotations. Close anyway?"),
             QMessageBox::Yes | QMessageBox::No,
