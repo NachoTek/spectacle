@@ -191,7 +191,15 @@ void PostCaptureAnnotationViewerTest::testPostCaptureWorkflow()
     delete viewer;
 }
 
-QTEST_MAIN(PostCaptureAnnotationViewerTest)
+// Custom main function using QGuiApplication instead of QApplication
+// QTEST_MAIN creates QApplication, but Qt Quick needs QGuiApplication
+int main(int argc, char *argv[])
+{
+    QGuiApplication app(argc, argv);
+    PostCaptureAnnotationViewerTest tc;
+    QTEST_SET_MAIN_SOURCE_PATH
+    return QTest::qExec(&tc, argc, argv);
+}
 
 #include "PostCaptureAnnotationViewerTest.moc"
 
