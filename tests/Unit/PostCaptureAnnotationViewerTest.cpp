@@ -144,11 +144,11 @@ void PostCaptureAnnotationViewerTest::testClipboardUpdatesOnAnnotationChange()
     annotation.setBoundingBox(QRect(10, 10, 50, 50));
     model->addAnnotation(annotation);
 
-    // Trigger clipboard update (simulate signal)
-    Q_EMIT model->layoutChanged();
+    // Wait for debounced clipboard update (100ms timer + margin)
+    QTest::qWait(200);
 
-    // Verify clipboard has image
-    QClipboard *clipboard = QApplication::clipboard();
+    // Verify clipboard has image using QGuiApplication
+    QClipboard *clipboard = QGuiApplication::clipboard();
     QVERIFY(!clipboard->image().isNull());
 
     delete viewer;
