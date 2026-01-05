@@ -38,7 +38,7 @@ PostCaptureAnnotationViewer::PostCaptureAnnotationViewer(const QImage &capturedI
     : QQuickView(parent)
     , m_capturedImage(capturedImage)
     , m_annotationModel(nullptr)
-    , m_clipboard(QApplication::clipboard())
+    , m_clipboard(QGuiApplication::clipboard())  // Use QGuiApplication for Qt Quick
     , m_clipboardUpdateTimer(new QTimer(this))
     , m_hasUnsavedChanges(false)
     , m_imageProvider(nullptr)  // CRITICAL #3: Will be initialized in setupQml
