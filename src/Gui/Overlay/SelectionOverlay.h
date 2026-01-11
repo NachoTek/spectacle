@@ -27,6 +27,9 @@ class WindowEventMonitor;
 class AnnotationListModel;
 class AnnotationTool;
 
+// Forward declaration for settings manager (Story 1.5)
+class SettingsManager;
+
 /**
  * @brief Full-screen overlay for screen capture selection
  *
@@ -124,6 +127,9 @@ Q_SIGNALS:
     void captureConfirmed(const QImage &image);
     void captureAborted();
 
+    // Story 1.5: Status message signal for inline user feedback
+    void statusMessage(const QString &message);
+
     // Story 1.3: Annotation change signals
     void currentToolChanged();
     void currentColorChanged();
@@ -180,6 +186,12 @@ public Q_SLOTS:
     void refreshTargets();
 
     /**
+     * @brief Reload settings from SettingsManager (Story 1.5 - CRITICAL #6 fix)
+     * Call this when settings may have changed externally (e.g., from SettingsDialog)
+     */
+    void reloadSettings();
+
+    /**
      * @brief Open post-capture annotation viewer (Story 1.4 - CRITICAL #1 fix)
      */
     void openPostCaptureAnnotationViewer(const QImage &image, AnnotationListModel *annotations);
@@ -192,6 +204,9 @@ private:
     bool m_dragging;
     bool m_autosaveEnabled;
     QString m_autosavePath;
+
+    // Story 1.5: Settings manager for autosave integration
+    SettingsManager *m_settingsManager;
 
 #ifdef Q_OS_WIN
     WindowDetector *m_windowDetector;

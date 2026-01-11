@@ -103,6 +103,17 @@ add_executable(postcapture_test
 )
 target_link_libraries(postcapture_test Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::Widgets Qt6::Test)
 
+# Settings Manager Test (Story 1.5)
+set(SETTINGS_SOURCES
+    ${SOURCE_DIR}/src/Gui/Settings/SettingsManager.cpp
+)
+
+add_executable(settings_manager_test
+    ${SOURCE_DIR}/tests/Unit/SettingsManagerTest.cpp
+    ${SETTINGS_SOURCES}
+)
+target_link_libraries(settings_manager_test Qt6::Core Qt6::Gui Qt6::Test)
+
 # Add tests to CTest
 add_test(NAME HelperProcessTest COMMAND helper_process_test)
 add_test(NAME NamedPipeServerTest COMMAND named_pipe_server_test)
@@ -110,3 +121,4 @@ add_test(NAME SelectionGeometryTest COMMAND selection_geometry_test)
 add_test(NAME WindowEventMonitorTest COMMAND window_event_monitor_test)
 add_test(NAME AnnotationTest COMMAND annotation_test)
 add_test(NAME PostCaptureAnnotationViewerTest COMMAND postcapture_test)
+add_test(NAME SettingsManagerTest COMMAND settings_manager_test)

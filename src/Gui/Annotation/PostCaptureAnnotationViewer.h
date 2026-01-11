@@ -21,6 +21,7 @@
 
 class QClipboard;
 class QTimer;
+class SettingsManager;  // Story 1.5: Settings manager
 
 /**
  * @brief Post-capture annotation viewer window
@@ -167,6 +168,9 @@ private:
     int m_currentTool;
     QColor m_currentColor;
     int m_currentStrokeWidth;
+
+    // Story 1.5: Settings manager for Save As integration
+    SettingsManager *m_settingsManager;
 };
 
 #endif // Q_OS_WIN

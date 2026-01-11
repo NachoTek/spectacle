@@ -4,6 +4,7 @@
  *  Post-Capture Annotation Viewer
  *  Story 1.4 - Post-Capture Annotation View
  *  Task 1: Create PostCaptureAnnotationViewer window
+ *  Story 1.5 - Saving & Defaults (Save As integration)
  */
 
 #include "PostCaptureAnnotationViewer.h"
@@ -12,6 +13,7 @@
 
 #include "AnnotationRenderer.h"
 #include "CapturedImageProvider.h"
+#include "../Settings/SettingsManager.h"  // Story 1.5: Settings manager
 
 #include <QApplication>
 #include <QClipboard>
@@ -45,6 +47,7 @@ PostCaptureAnnotationViewer::PostCaptureAnnotationViewer(const QImage &capturedI
     , m_currentTool(static_cast<int>(AnnotationTool::None))  // MINOR #13: Initialize tool state
     , m_currentColor(QColor("#FF0000"))  // MINOR #13: Default red color
     , m_currentStrokeWidth(2)  // MINOR #13: Default 2px stroke
+    , m_settingsManager(new SettingsManager(this))  // Story 1.5: Initialize settings manager
 {
     // Task 3.2: Create deep copy of annotation model (not reference)
     m_annotationModel = new AnnotationListModel(this);
@@ -167,18 +170,26 @@ QImage PostCaptureAnnotationViewer::renderWithAnnotations() const
 
 void PostCaptureAnnotationViewer::saveAs()
 {
-    // Task 5.1: Create save dialog with format selection
+    // Task 4.2: Default to last used location or default location from SettingsManager
+    QString defaultLocation = m_settingsManager->getSaveLocation();
+
+    // Task 4.3: Default to last used format or default format from SettingsManager
+    QString defaultFormat = m_settingsManager->defaultFormat();
+
+    // Task 4.1: Create save dialog with format selection
     QString filter = tr("PNG Images (*.png);;JPEG Images (*.jpg *.jpeg);;All Files (*)");
+
+    // Set default directory to the configured save location
     QString fileName = QFileDialog::getSaveFileName(nullptr,
                                                      tr("Save Annotated Image"),
-                                                     QString(),
+                                                     defaultLocation,
                                                      filter);
 
     if (fileName.isEmpty()) {
         return; // User cancelled
     }
 
-    // Task 5.2: Render final image with annotations
+    // Render final image with annotations
     QImage finalImage = renderWithAnnotations();
 
     if (finalImage.isNull()) {
@@ -188,13 +199,24 @@ void PostCaptureAnnotationViewer::saveAs()
         return;
     }
 
-    // Task 5.3: Save to selected location
+    // Save to selected location
     if (!finalImage.save(fileName)) {
         // MAJOR #7: Emit error signal for save failure
         qCWarning(LOG_POSTCAPTURE) << "Failed to save image to" << fileName;
         Q_EMIT saveError(tr("Failed to save image to ") + fileName);
         return;
     }
+
+    // Task 4.4: Remember user's manual save choice for next time
+    QFileInfo fileInfo(fileName);
+    m_settingsManager->setLastSaveLocation(fileInfo.absolutePath());
+
+    // Extract and remember the format
+    QString extension = fileInfo.suffix().toLower();
+    if (extension.isEmpty()) {
+        extension = QLatin1String("png");  // Default to PNG if no extension
+    }
+    m_settingsManager->setLastFormat(extension);
 
     qCDebug(LOG_POSTCAPTURE) << "Image saved to" << fileName;
     m_hasUnsavedChanges = false;

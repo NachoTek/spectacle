@@ -147,4 +147,35 @@ ecm_add_test(
         Qt::Gui
 )
 
+# Settings Manager Tests (Story 1.5 - Saving & Defaults)
+SET(SETTINGS_MANAGER_TEST_SRCS
+    Unit/SettingsManagerTest.cpp
+    ../src/Gui/Settings/SettingsManager.cpp
+)
+
+ecm_add_test(
+    ${SETTINGS_MANAGER_TEST_SRCS}
+    TEST_NAME "settings_manager_test"
+    LINK_LIBRARIES  Qt::Test
+        Qt::Gui
+)
+
+# Story 1.5 Integration Tests (Story 1.5 - Saving & Defaults)
+SET(STORY1_5_INTEGRATION_TEST_SRCS
+    Integration/Story1_5IntegrationTest.cpp
+    ../src/Gui/Settings/SettingsManager.cpp
+    ../src/Gui/Annotation/Annotation.cpp
+    ../src/Gui/Annotation/AnnotationListModel.cpp
+    ../src/Gui/Annotation/AnnotationRenderer.cpp
+)
+
+ecm_add_test(
+    ${STORY1_5_INTEGRATION_TEST_SRCS}
+    TEST_NAME "story1_5_integration_test"
+    LINK_LIBRARIES  Qt::Test
+        Qt::Gui
+        Qt::Qml
+        Qt::QuickWidgets
+)
+
 

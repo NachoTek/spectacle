@@ -6,6 +6,7 @@
  *  Story 1.2 - Selection Targeting + Refinement
  *  Story 1.3 - Pre-Capture Annotation Tools
  *  Story 1.8 - Window Movement Detection & Overlay Persistence
+ *  Story 1.5 - Saving & Defaults (autosave integration)
  */
 
 #include "SelectionOverlay.h"
@@ -16,6 +17,7 @@
 #include "Gui/Annotation/AnnotationTool.h"
 #include "Gui/Annotation/AnnotationRenderer.h"  // Task 8: Render annotations
 #include "Gui/Annotation/PostCaptureAnnotationViewer.h"  // Story 1.4: Post-capture annotation viewer
+#include "Gui/Settings/SettingsManager.h"  // Story 1.5: Settings manager
 
 #ifdef Q_OS_WIN
 #include "Platforms/Windows/WindowDetector.h"
@@ -31,6 +33,9 @@
 #include <QApplication>
 #include <QStandardPaths>
 #include <QMetaObject>
+#include <QDir>
+#include <QFileInfo>
+#include <QLoggingCategory>
 
 SelectionOverlay::SelectionOverlay(QObject *parent)
     : QObject(parent)
@@ -38,6 +43,7 @@ SelectionOverlay::SelectionOverlay(QObject *parent)
     , m_dragging(false)
     , m_autosaveEnabled(false)
     , m_autosavePath(QStandardPaths::writableLocation(QStandardPaths::TempLocation) + QLatin1String("/screenshot.png"))
+    , m_settingsManager(new SettingsManager(this))  // Story 1.5: Initialize settings manager
 #ifdef Q_OS_WIN
     , m_windowDetector(nullptr)
     , m_selectionSnapper(nullptr)
@@ -395,19 +401,48 @@ void SelectionOverlay::enterPressed()
            m_annotationModel ? m_annotationModel->rowCount() : 0);
     Q_EMIT openPostCaptureView(image, m_annotationModel);
 
-    // Task 8: Render annotations onto the captured image for clipboard/autosave
+    // Story 1.5: Render annotations onto the captured image for clipboard/autosave
     if (m_annotationModel && m_annotationModel->rowCount() > 0) {
         qDebug("Rendering %d annotations onto captured image", m_annotationModel->rowCount());
         QImage renderedImage = AnnotationRenderer::renderFromModel(image, m_annotationModel);
 
-        // Commit to clipboard
+        // Task 5.1-5.3: Update clipboard automatically
         QClipboard *clipboard = QApplication::clipboard();
         clipboard->setImage(renderedImage);
 
-        // Autosave if enabled
-        if (m_autosaveEnabled) {
-            renderedImage.save(m_autosavePath);
-            qDebug("Rendered image saved to: %s", qUtf8Printable(m_autosavePath));
+        // Task 3.1-3.5: Autosave using SettingsManager
+        if (m_settingsManager->autosave()) {
+            // Task 3.2: Generate filename with timestamp
+            QString filename = m_settingsManager->generateFilename();
+
+            // Task 3.3: Save to default location
+            QString savePath = m_settingsManager->getSaveLocation();
+            QString fullPath = QDir(savePath).absoluteFilePath(filename);
+
+            // Task 3.4: Handle file name conflicts (auto-increment if exists)
+            int counter = 1;
+            QString finalPath = fullPath;
+            while (QFileInfo::exists(finalPath)) {
+                // Extract base name and extension
+                QFileInfo fileInfo(fullPath);
+                QString baseName = fileInfo.completeBaseName();
+                QString extension = fileInfo.suffix();
+
+                // Insert counter before extension
+                QString newBaseName = baseName + QLatin1String("_") + QString::number(counter);
+                finalPath = QDir(savePath).absoluteFilePath(newBaseName + QLatin1String(".") + extension);
+                counter++;
+            }
+
+            // Save the image
+            if (renderedImage.save(finalPath)) {
+                // Task 3.5: Show inline confirmation
+                qDebug("Autosaved: %s", qUtf8Printable(finalPath));
+                Q_EMIT statusMessage(tr("Saved to ") + finalPath);
+            } else {
+                qWarning("Failed to autosave to: %s", qUtf8Printable(finalPath));
+                Q_EMIT statusMessage(tr("Failed to save image"));
+            }
         }
 
         qDebug("Rendered image committed to clipboard: %dx%d", renderedImage.width(), renderedImage.height());
@@ -416,10 +451,36 @@ void SelectionOverlay::enterPressed()
         QClipboard *clipboard = QApplication::clipboard();
         clipboard->setImage(image);
 
-        // Autosave if enabled
-        if (m_autosaveEnabled) {
-            image.save(m_autosavePath);
-            qDebug("Image saved to: %s", qUtf8Printable(m_autosavePath));
+        // Story 1.5: Autosave using SettingsManager
+        if (m_settingsManager->autosave()) {
+            // Task 3.2: Generate filename with timestamp
+            QString filename = m_settingsManager->generateFilename();
+
+            // Task 3.3: Save to default location
+            QString savePath = m_settingsManager->getSaveLocation();
+            QString fullPath = QDir(savePath).absoluteFilePath(filename);
+
+            // Task 3.4: Handle file name conflicts (auto-increment if exists)
+            int counter = 1;
+            QString finalPath = fullPath;
+            while (QFileInfo::exists(finalPath)) {
+                QFileInfo fileInfo(fullPath);
+                QString baseName = fileInfo.completeBaseName();
+                QString extension = fileInfo.suffix();
+                QString newBaseName = baseName + QLatin1String("_") + QString::number(counter);
+                finalPath = QDir(savePath).absoluteFilePath(newBaseName + QLatin1String(".") + extension);
+                counter++;
+            }
+
+            // Save the image
+            if (image.save(finalPath)) {
+                // Task 3.5: Show inline confirmation
+                qDebug("Autosaved: %s", qUtf8Printable(finalPath));
+                Q_EMIT statusMessage(tr("Saved to ") + finalPath);
+            } else {
+                qWarning("Failed to autosave to: %s", qUtf8Printable(finalPath));
+                Q_EMIT statusMessage(tr("Failed to save image"));
+            }
         }
 
         qDebug("Image committed to clipboard: %dx%d", image.width(), image.height());
@@ -547,23 +608,26 @@ void SelectionOverlay::refreshTargets()
                 // Update selection to current window position
                 m_selectionRect = newBounds;
                 Q_EMIT selectionChanged();
-                qDebug("Selection refreshed to new window bounds: %dx%d at (%d, %d)",
-                       newBounds.width(), newBounds.height(), newBounds.x(), newBounds.y());
-
-                // Update tracked window in monitor
-                if (m_eventMonitor && m_eventMonitor->isRunning()) {
-                    m_eventMonitor->setTrackedWindow(hwnd);
-                }
-                return;
             }
         }
-
-        // Window no longer exists - clear selection
-        qDebug("Target window no longer found, clearing selection");
-        m_selectionRect = QRect();
-        Q_EMIT selectionChanged();
     }
+
+    // Re-detect all windows
+    m_windowDetector->detectAllWindows();
 #endif
+}
+
+void SelectionOverlay::reloadSettings()
+{
+    // Story 1.5 - CRITICAL #6: Reload settings from SettingsManager
+    // This ensures that changes made via SettingsDialog take effect immediately
+    if (m_settingsManager) {
+        qDebug("Reloading settings from SettingsManager");
+        m_settingsManager->loadSettings();
+
+        // Update local cached values if needed
+        // (SettingsManager already caches values, this just ensures they're reloaded from disk)
+    }
 }
 
 // Story 1.4: CRITICAL #1 Fix - Open post-capture annotation viewer
